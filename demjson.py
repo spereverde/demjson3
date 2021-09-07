@@ -806,7 +806,7 @@ del _nonnumber_float_constants
 # Integers
 
 
-class json_int((1).__class__):  # Have to specify base this way to satisfy 2to3
+class json_int(int):  # Have to specify base this way to satisfy 2to3
     """A subclass of the Python int/long that remembers its format (hex,octal,etc).
 
     Initialize it the same as an int, but also accepts an additional keyword
@@ -912,11 +912,7 @@ def extend_and_flatten_list_with_sep(orig_seq, extension_seq, separator=""):
 
 def _make_raw_bytes(byte_list):
     """Takes a list of byte values (numbers) and returns a bytes (Python 3) or string (Python 2)"""
-    if _py_major >= 3:
-        b = bytes(byte_list)
-    else:
-        b = "".join(chr(n) for n in byte_list)
-    return b
+    return bytes(byte_list)
 
 
 import codecs
@@ -996,21 +992,11 @@ class utf32(codecs.CodecInfo):
         import sys, struct
 
         # Make a container that can store bytes
-        if _py_major >= 3:
-            f = bytearray()
-            write = f.extend
+        f = bytearray()
+        write = f.extend
 
-            def tobytes():
-                return bytes(f)
-
-        else:
-            try:
-                import io as sio
-            except ImportError:
-                import io as sio
-            f = sio.StringIO()
-            write = f.write
-            tobytes = f.getvalue
+        def tobytes():
+            return bytes(f)
 
         if not endianness:
             endianness = sys.byteorder
@@ -1963,12 +1949,8 @@ class buffered_stream(object):
             raise
         except Exception as err:
             # Re-raise as a JSONDecodeError
-            e2 = sys.exc_info()
             newerr = JSONDecodeError("a Unicode decoding error occurred")
-            # Simulate Python 3's: "raise X from Y" exception chaining
-            newerr.__cause__ = err
-            newerr.__traceback__ = e2[2]
-            raise newerr
+            raise newerr from err
         else:
             self.__codec = decoded.codec
             self.__bom = decoded.bom
@@ -2227,10 +2209,10 @@ class buffered_stream(object):
 
         """
         if not isinstance(chars, (set, frozenset)):
-            cset = set(chars)
+            chars = set(chars)
         c = self.peek()
-        if c and c in cset:
-            s = self.popwhile(lambda c: c and c in cset)
+        if c and c in chars:
+            s = self.popwhile(lambda c: c and c in chars)
             return s
         return None
 
@@ -2253,7 +2235,7 @@ class buffered_stream(object):
         """
         s2 = self.peekstr(len(s))
         if s2 != s:
-            return NULL
+            return None
         self.__pos.advance(s2)
         return s2
 
@@ -2284,7 +2266,7 @@ class buffered_stream(object):
         See also methods: skipuntil() and popwhile()
 
         """
-        return popwhile(lambda c: not testfn(c), maxchars=maxchars)
+        return self.popwhile(lambda c: not testfn(c), maxchars=maxchars)
 
     def __getitem__(self, index):
         """Returns the character at the given index relative to the current position.
@@ -2485,11 +2467,13 @@ class JSONDecodeHookError(JSONDecodeError):
         self.object_type = type(encoded_obj)
         msg = "Hook %s raised %r while decoding type <%s>" % (
             hook_name,
-            self.hook_exception.__class__.__name__,
+            self.hook_exception.__class__.__name__
+            if self.hook_exception is not None
+            else None,
             self.object_type.__name__,
         )
         if len(args) >= 1:
-            msg += ": " + args[0]
+            msg += ": " + str(args[0])
             args = args[1:]
         super(JSONDecodeHookError, self).__init__(msg, *args, **kwargs)
 
@@ -2514,11 +2498,13 @@ class JSONEncodeHookError(JSONEncodeError):
         self.object_type = type(encoded_obj)
         msg = "Hook %s raised %r while encoding type <%s>" % (
             self.hook_name,
-            self.hook_exception.__class__.__name__,
+            self.hook_exception.__class__.__name__
+            if self.hook_exception is not None
+            else None,
             self.object_type.__name__,
         )
         if len(args) >= 1:
-            msg += ": " + args[0]
+            msg += ": " + str(args[0])
             args = args[1:]
         super(JSONEncodeHookError, self).__init__(msg, *args, **kwargs)
 
@@ -2612,6 +2598,7 @@ class decode_statistics(object):
         self.num_ints_64bit = 0
         self.num_ints_long = 0
         self.num_negative_zero_ints = 0
+        self.total_chars = 0
         # Floating-point stats
         self.num_negative_zero_floats = 0
         self.num_floats = 0
@@ -3223,15 +3210,10 @@ def smart_sort_transform(key):
 
 
 # Find Enum type (introduced in Python 3.4)
-try:
-    from enum import Enum as _enum
-except ImportError:
-    _enum = None
+from enum import Enum as _enum
+
 # Find OrderedDict type
-try:
-    from collections import OrderedDict as _OrderedDict
-except ImportError:
-    _OrderedDict = None
+from collections import OrderedDict as _OrderedDict
 
 
 class json_options(object, metaclass=_behaviors_metaclass):
@@ -3385,10 +3367,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
         self.max_items_per_line = 1  # When encoding how many items per array/object
         # before breaking into multiple lines
         # For interpreting Python 2 'str' types:
-        if _py_major == 2:
-            self.py2str_encoding = "ascii"
-        else:
-            self.py2str_encoding = None
+        self.py2str_encoding = None
 
     def __init__(self, **kwargs):
         """Set JSON encoding and decoding options.
@@ -3530,7 +3509,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
             if isinstance(val, set):
                 val = val.copy()
             elif decimal and isinstance(val, decimal.Decimal):
-                val = val.copy()
+                val = decimal.Decimal(val)
 
             setattr(self, name, val)
 
@@ -3609,7 +3588,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
     @property
     def zero_float(self):
         """The numeric value 0.0, either a float or a decimal."""
-        if decimal and self.float_type == NUMBER_DECIMAL:
+        if self.float_type == NUMBER_DECIMAL:
             return self.decimal_context.create_decimal("0.0")
         else:
             return 0.0
@@ -3617,7 +3596,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
     @property
     def negzero_float(self):
         """The numeric value -0.0, either a float or a decimal."""
-        if decimal and self.float_type == NUMBER_DECIMAL:
+        if self.float_type == NUMBER_DECIMAL:
             return self.decimal_context.create_decimal("-0.0")
         else:
             return -0.0
@@ -3625,7 +3604,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
     @property
     def nan(self):
         """The numeric value NaN, either a float or a decimal."""
-        if decimal and self.float_type == NUMBER_DECIMAL:
+        if self.float_type == NUMBER_DECIMAL:
             return self.decimal_context.create_decimal("NaN")
         else:
             return nan
@@ -3633,7 +3612,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
     @property
     def inf(self):
         """The numeric value Infinity, either a float or a decimal."""
-        if decimal and self.float_type == NUMBER_DECIMAL:
+        if self.float_type == NUMBER_DECIMAL:
             return self.decimal_context.create_decimal("Infinity")
         else:
             return inf
@@ -3641,7 +3620,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
     @property
     def neginf(self):
         """The numeric value -Infinity, either a float or a decimal."""
-        if decimal and self.float_type == NUMBER_DECIMAL:
+        if self.float_type == NUMBER_DECIMAL:
             return self.decimal_context.create_decimal("-Infinity")
         else:
             return neginf
@@ -3717,7 +3696,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
 
     def make_decimal(self, s, sign="+"):
         """Converts a string into a decimal or float value."""
-        if not decimal or self.float_type == NUMBER_FLOAT:
+        if self.float_type == NUMBER_FLOAT:
             return self.make_float(s, sign)
 
         if s.startswith("-") or s.startswith("+"):
@@ -3925,7 +3904,7 @@ class JSON(object):
         hook name; e.g., encode_dict=my_hook_func.
 
         """
-        import sys, unicodedata, re
+        import unicodedata
 
         kwargs = kwargs.copy()
         # Initialize hooks
@@ -4560,7 +4539,7 @@ class JSON(object):
             state.append(str(n))
             return
 
-        if decimal and isinstance(n, decimal.Decimal):
+        if isinstance(n, decimal.Decimal):
             if n.is_nan():  # Could be 'NaN' or 'sNaN'
                 state.append("NaN")
             elif n.is_infinite():
@@ -5599,16 +5578,15 @@ class JSON(object):
             except JSONException as err:
                 state.push_exception(err)
             except Exception as err:  # Mainly here to catch maximum recursion depth exceeded
-                e2 = sys.exc_info()
-                raise
                 newerr = JSONDecodeError(
                     "An unexpected failure occured",
                     severity="fatal",
                     position=state.buf.position,
                 )
-                newerr.__cause__ = err
-                newerr.__traceback__ = e2[2]
-                state.push_exception(newerr)
+                try:
+                    raise newerr from err
+                except Exception as err:
+                    state.push_exception(newerr)
 
         if return_stats and state.buf:
             state.stats.num_excess_whitespace = state.buf.num_ws_skipped
@@ -5859,12 +5837,8 @@ class JSON(object):
                 output, nchars = cdk.encode(unitxt)
             except UnicodeEncodeError as err:
                 # Re-raise as a JSONDecodeError
-                e2 = sys.exc_info()
                 newerr = JSONEncodeError("a Unicode encoding error occurred")
-                # Simulate Python 3's: "raise X from Y" exception chaining
-                newerr.__cause__ = err
-                newerr.__traceback__ = e2[2]
-                raise newerr
+                raise newerr from err
         return output
 
     def _do_encode(self, obj, state):
@@ -5931,11 +5905,11 @@ class JSON(object):
         """Encode a Python Enum value into JSON."""
         eas = self.options.encode_enum_as
         if eas == "qname":
-            self.encode_string(str(obj), state)
+            self.encode_string(str(val), state)
         elif eas == "value":
-            self._do_encode(obj.value, state)
+            self._do_encode(val.value, state)
         else:  # eas == 'name'
-            self.encode_string(obj.name, state)
+            self.encode_string(val.name, state)
 
     def encode_date(self, dt, state):
         fmt = self.options.date_format
@@ -5960,7 +5934,7 @@ class JSON(object):
         fmt = self.options.datetime_format
         is_iso = not fmt or fmt == "iso"
         if is_iso:
-            if dt.microsecond == 0:
+            if t.microsecond == 0:
                 fmt = "T%H:%M:%S%z"
             else:
                 fmt = "T%H:%M:%S.%f%z"
