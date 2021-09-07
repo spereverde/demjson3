@@ -1,7 +1,7 @@
 Help on module demjson:
 
 NAME
-    demjson - A JSON data encoder and decoder.
+    demjson3 - A JSON data encoder and decoder for Python 3.
 
 FILE
     demjson.py

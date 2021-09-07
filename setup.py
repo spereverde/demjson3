@@ -1,7 +1,7 @@
 # Python package setup script        -*- coding: utf-8 -*-
 
-name = "demjson"
-version = "2.2.4"
+name = "demjson3"
+version = "3.0.0"
 
 from setuptools import setup
 
@@ -15,9 +15,6 @@ setup(
     scripts=["jsonlint"],
     author="Deron Meranda",
     author_email="deron.meranda@gmail.com",
-    url="http://deron.meranda.us/python/%s/" % name,
-    download_url="http://deron.meranda.us/python/%(name)s/dist/%(name)s-%(version)s.tar.gz"
-    % {"name": name, "version": version},
     description="encoder, decoder, and lint/validator for JSON (JavaScript Object Notation) compliant with RFC 7159",
     long_description="""
 The "demjson" module, and the included "jsonlint" script, provide methods

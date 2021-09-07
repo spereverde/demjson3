@@ -1,12 +1,11 @@
-Requirements for demjson
-========================
+Requirements for demjson3
+=========================
 
 demjson is a pure Python module; it does not contain any C code
 extensions. It also does not have any dependencies on any third-party
 modules; it only uses the standard Python library.
 
-It will work with both Python 2 and Python 3; though at least Python
-2.4 is recommended.  If you plan to use it with Python 3, also read
+It will work with Python 3. If you plan to use it with Python 3, also read
 the "docs/PYTHON3.txt" file included with this release.
 
 Note: for full Unicode support of non-BMP (Basic Multilingual Plane)

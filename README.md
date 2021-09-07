@@ -5,9 +5,9 @@ This is a fork of the popular tool demjson to only support Python 3.
 The decision to do this is mainly based on all the headache caused
 by trying to support Python 2 AND 3.
 
-<b>demjson</b> is a [Python language](http://python.org/) module for
+<b>demjson3</b> is a [Python language](http://python.org/) module for
 encoding, decoding, and syntax-checking [JSON](http://json.org/)
-data.  It works under both Python 2 and Python 3.
+data.  It works under Python 3.
 
 It comes with a <b>jsonlint</b> script which can be used to validate
 your JSON documents for strict conformance to the JSON specification,
@@ -18,6 +18,8 @@ unnecessary whitespace.
 
 What's new
 ==========
+
+<b>Version 3.0.0</b> will start to only work under Python 3.
 
 <b>Version 2.2.4</b> fixes problem with jsonlint under Python 3 when
 trying to reformat JSON (-f or -F options) and writing the output to
@@ -65,15 +67,15 @@ change notes thoroughly.
 Example use
 ===========
 
-To use demjson from within your Python programs:
+To use demjson3 from within your Python programs:
 
 ```python
-    >>> import demjson
+    >>> import demjson3
 
-    >>> demjson.encode( ['one',42,True,None] )    # From Python to JSON
+    >>> demjson3.encode( ['one',42,True,None] )    # From Python to JSON
     '["one",42,true,null]'
 
-    >>> demjson.decode( '["one",42,true,null]' )  # From JSON to Python
+    >>> demjson3.decode( '["one",42,true,null]' )  # From JSON to Python
     ['one', 42, True, None]
 ```
 
@@ -93,21 +95,19 @@ To check a JSON data file for errors or problems:
 ```
 
 
-Why use demjson?
+Why use demjson3?
 ================
 
-I wrote demjson before Python had any JSON support in its standard
+I wrote demjson3 before Python had any JSON support in its standard
 library.  If all you need is to be able to read or write JSON data,
 then you may wish to just use what's built into Python.
 
-However demjson is extremely feature rich and is quite useful in
+However demjson3 is extremely feature rich and is quite useful in
 certain applications.  It is especially good at error checking
 JSON data and for being able to parse more of the JavaScript syntax
 than is permitted by strict JSON.
 
-A few advantages of demjson are:
-
- * It works in old Python versions that don't have JSON built in;
+A few advantages of demjson3 are:
 
  * It generally has better error handling and "lint" checking capabilities;
 
@@ -137,7 +137,7 @@ To install, type:
    python setup.py install
 ```
 
-or optionally just copy the file "demjson.py" to whereever you want.
+or optionally just copy the file "demjson3.py" to whereever you want.
 See "docs/INSTALL.txt" for more detailed instructions, including how
 to run the self-tests.
 
@@ -149,28 +149,25 @@ See the files under the "docs" subdirectory.  The module is also
 self-documented, so within the python interpreter type:
 
 ```python
-    import demjson
-    help(demjson)
+    import demjson3
+    help(demjson3)
 ```
 
 or from a shell command line:
 
 ```bash
-    pydoc demjson
+    pydoc demjson3
 ```
 
-The "jsonlint" command script which gets installed as part of demjson
+The "jsonlint" command script which gets installed as part of demjson3
 has built-in usage instructions as well.  Just type:
 
 ```bash
    jsonlint --help
 ```
 
-Complete documentation and additional information is also available on
-the project homepage at http://deron.meranda.us/python/demjson/
-
 It is also available on the Python Package Index (PyPI) at
-http://pypi.python.org/pypi/demjson/
+http://pypi.python.org/pypi/demjson3/
 
 
 License
@@ -180,10 +177,11 @@ LGPLv3 - See the included "LICENSE.txt" file.
 
 This software is Free Software and is licensed under the terms of the
 GNU LGPL (GNU Lesser General Public License).  More information is
-found at the top of the demjson.py source file and the included
+found at the top of the demjson3.py source file and the included
 LICENSE.txt file.
 
 Releases prior to 1.4 were released under a different license, be
 sure to check the corresponding LICENSE.txt file included with them.
 
-This software was written by Deron Meranda, http://deron.meranda.us/
+This software was written by Deron Meranda, http://deron.meranda.us/ and adjusted
+for Python 3 only support by Niels Mündler.

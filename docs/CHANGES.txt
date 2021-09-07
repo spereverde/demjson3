@@ -1,5 +1,10 @@
 Change history for demjson python module.
 
+Version 3.0.0 released 2021-09-08
+=================================
+
+* Purge support for Python 2
+
 Version 2.2.4 released 2015-12-22
 =================================
 

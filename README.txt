@@ -3,6 +3,10 @@ demjson
 
 MORE DOCUMENTATION IS IN THE "docs" SUBDIRECTORY.
 
+This is a fork of the popular tool demjson to only support Python 3.
+The decision to do this is mainly based on all the headache caused
+by trying to support Python 2 AND 3.
+
 'demjson' is a Python language module for encoding, decoding, and
 syntax-checking JSON data. It works under both Python 2 and Python 3.
 

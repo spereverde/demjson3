@@ -1,43 +1,8 @@
 Using demjson with Python 3
 ===========================
 
-Starting with release 2.0, demjson and jsonlint, can support either
-Python 2 or Python 3 -- though it must be installed as described below
-to work with Python 3.
+Starting with release 3.0, demjson and jsonlint, support only Python 3.
 
-Be aware that the API will have slightly different behavior in Python 3,
-mainly because it uses the 'bytes' type in a few places.
-
-
-Installing for Python 3
-=======================
-
-The source for the demjson module is written for Python 2.x.  However,
-since release 2.0, it has been designed to be converted to a Python 3
-equivalent form by using the standard "2to3" Python conversion utility.
-
-If you have installed demjson with a standard PyPI package
-distribution mechanism; such as pip, easy_install, or just typing
-"python3 setup.py install"; then the 2to3 conversion will be performed
-automatically as part of the installation process.
-
-Running self-tests: if you install using a PyPI distribution mechanism
-then the test program "tests/test_demjson.py" may either not be
-installed or may not have been converted to Python 3.  You can do this
-manually if needed by:
-
-    cd test
-    2to3 -w test_demjson.py
-    PYTHONPATH=.. python3 test_demjson.py
-
-
-Bytes versus strings
-====================
-
-When calling demjson functions and classes from a Python 3 environment,
-be aware that there are a few differences from what is documented for
-Python 2.  Most of these differences involve Python's byte-oriented
-types ('bytes', 'bytearray', and 'memoryview').
 
 Decoding JSON into Python values
 --------------------------------

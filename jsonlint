@@ -33,7 +33,7 @@ or <http://www.fsf.org/licensing/>.
 import sys
 
 try:
-    import demjson
+    import demjson3
 except ImportError:
     sys.stderr.write("Can not import the demjson Python module.\n")
     sys.stderr.write("Try running:  pip install demjson\n")
@@ -41,6 +41,6 @@ except ImportError:
 
 
 if __name__ == '__main__':
-    lint = demjson.jsonlint( program_name=sys.argv[0] )
+    lint = demjson3.jsonlint(program_name=sys.argv[0])
     rc = lint.main( sys.argv[1:] )
     sys.exit(rc)

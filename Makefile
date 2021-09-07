@@ -5,8 +5,8 @@
 PYTHON=python
 PYDOC=pydoc
 
-MODULE=demjson
-VERSION=2.2.4
+MODULE=demjson3
+VERSION=3.0.0
 
 SOURCES = $(MODULE).py
 SETUP = setup.py
