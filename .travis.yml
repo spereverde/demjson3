@@ -19,7 +19,7 @@ install:
 
 script:
 - make all
-- coverage run --source=demjson3.py setup.py test
+- coverage run --source=demjson3 test/test_demjson3.py
 
 after_success:
 - coverage report
