@@ -58,17 +58,17 @@ else:
     # test method.
     def skipUnlessPython3(method):
         def always_pass(self):
-            print "\nSKIPPING TEST %s: Requires Python 3" % method.__name__
+            print("\nSKIPPING TEST %s: Requires Python 3" % method.__name__)
             return True
         return always_pass
     def skipUnlessPython27(method):
         def always_pass(self):
-            print "\nSKIPPING TEST %s: Requires Python 2.7 or greater" % method.__name__
+            print("\nSKIPPING TEST %s: Requires Python 2.7 or greater" % method.__name__)
             return True
         return always_pass
     def skipUnlessWidePython(method):
         def always_pass(self):
-            print "\nSKIPPING TEST %s: Requires Python with wide Unicode support (maxunicode > U+FFFF)" % method.__name__
+            print("\nSKIPPING TEST %s: Requires Python with wide Unicode support (maxunicode > U+FFFF)" % method.__name__)
             return True
         return always_pass
 
@@ -173,14 +173,14 @@ class rot_one(codecs.CodecInfo):
         chars = []
         for i, b in enumerate(byte_values):
             if ord('B') <= b <= ord('Z'):
-                chars.append( unichr(b-1) )
+                chars.append( chr(b-1) )
             elif b == ord('A'):
-                chars.append( u'Z' )
-            elif b <= 0x7fL:
-                chars.append( unichr(b) )
+                chars.append( 'Z' )
+            elif b <= 0x7f:
+                chars.append( chr(b) )
             else:
                 raise UnicodeDecodeError('rot-1',byte_list,i,i,"Can not decode byte value 0x%02x"%b)
-        return (u''.join(chars), i+1)
+        return (''.join(chars), i+1)
 
 ## ------------------------------
 class no_curly_braces(codecs.CodecInfo):
@@ -213,8 +213,8 @@ class no_curly_braces(codecs.CodecInfo):
             if b > 0x7f or b == ord('{') or b == ord('}'):
                 raise UnicodeDecodeError('degenerate',byte_list,i,i,"Can not decode byte value 0x%02x"%b)
             else:
-                chars.append( unichr(b) )
-        return (u''.join(chars), i+1)
+                chars.append( chr(b) )
+        return (''.join(chars), i+1)
 
 ## ------------------------------
 
@@ -411,11 +411,9 @@ class DemjsonTest(unittest.TestCase):
         try:
             m = r.match( value )
         except TypeError:
-            raise self.failureException, \
-                  "can't compare non-string to regex: %r" % value
+            raise self.failureException("can't compare non-string to regex: %r" % value)
         if m is None:
-            raise self.failureException, \
-                  (msg or '%r !~ /%s/' %(value,pattern))
+            raise self.failureException(msg or '%r !~ /%s/' %(value,pattern))
 
     def testEncodeNumber(self):
         self.assertEqual(demjson.encode(0), '0')
@@ -468,7 +466,7 @@ class DemjsonTest(unittest.TestCase):
                             'Decimal -0 is not encoded as a negative zero')
 
     def testJsonInt(self):
-        self.assertTrue( isinstance( demjson.json_int(0), (int,long) ) )
+        self.assertTrue( isinstance( demjson.json_int(0), int ) )
         self.assertEqual(demjson.json_int(0), 0)
         self.assertEqual(demjson.json_int(555999), 555999)
         self.assertEqual(demjson.json_int(-555999), -555999)
@@ -570,10 +568,10 @@ class DemjsonTest(unittest.TestCase):
     def testDecodeStringUnicodeEscape(self):
         self.assertEqual(demjson.decode(r'"\u0000"',warnings=False), '\0')
         self.assertEqual(demjson.decode(r'"\u0061"'), 'a')
-        self.assertEqual(demjson.decode(r'"\u2012"'), u'\u2012')
-        self.assertEqual(demjson.decode(r'"\u1eDc"'), u'\u1edc')
-        self.assertEqual(demjson.decode(r'"\uffff"'), u'\uffff')
-        self.assertEqual(demjson.decode(r'"\u00a012"'), u'\u00a0' + '12')
+        self.assertEqual(demjson.decode(r'"\u2012"'), '\u2012')
+        self.assertEqual(demjson.decode(r'"\u1eDc"'), '\u1edc')
+        self.assertEqual(demjson.decode(r'"\uffff"'), '\uffff')
+        self.assertEqual(demjson.decode(r'"\u00a012"'), '\u00a0' + '12')
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, r'"\u041"', strict=True)
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, r'"\u041Z"', strict=True)
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, r'"\u"', strict=True)
@@ -581,8 +579,8 @@ class DemjsonTest(unittest.TestCase):
 
     def testEncodeStringUnicodeEscape(self):
         self.assertEqual(demjson.encode('\0', escape_unicode=True), r'"\u0000"')
-        self.assertEqual(demjson.encode(u'\u00e0', escape_unicode=True), r'"\u00e0"')
-        self.assertEqual(demjson.encode(u'\u2012', escape_unicode=True), r'"\u2012"')
+        self.assertEqual(demjson.encode('\u00e0', escape_unicode=True), r'"\u00e0"')
+        self.assertEqual(demjson.encode('\u2012', escape_unicode=True), r'"\u2012"')
 
     def testHtmlSafe(self):
         self.assertEqual(demjson.encode('<', html_safe=True), r'"\u003c"')
@@ -593,14 +591,14 @@ class DemjsonTest(unittest.TestCase):
         self.assertEqual(demjson.encode('a<b>c&d/e', html_safe=False), r'"a<b>c&d/e"')
 
     def testDecodeStringExtendedUnicodeEscape(self):
-        self.assertEqual(demjson.decode(r'"\u{0041}"',allow_extended_unicode_escapes=True), u'A')
-        self.assertEqual(demjson.decode(r'"\u{1aFe}"',allow_extended_unicode_escapes=True), u'\u1afe')
-        self.assertEqual(demjson.decode(r'"\u{41}"',allow_extended_unicode_escapes=True), u'A')
-        self.assertEqual(demjson.decode(r'"\u{1}"',allow_extended_unicode_escapes=True), u'\u0001')
-        self.assertEqual(demjson.decode(r'"\u{00000000000041}"',allow_extended_unicode_escapes=True), u'A')
-        self.assertEqual(demjson.decode(r'"\u{1000a}"',allow_extended_unicode_escapes=True), u'\U0001000a')
-        self.assertEqual(demjson.decode(r'"\u{10ffff}"',allow_extended_unicode_escapes=True), u'\U0010FFFF')
-        self.assertEqual(demjson.decode(r'"\u{0000010ffff}"',allow_extended_unicode_escapes=True), u'\U0010FFFF')
+        self.assertEqual(demjson.decode(r'"\u{0041}"',allow_extended_unicode_escapes=True), 'A')
+        self.assertEqual(demjson.decode(r'"\u{1aFe}"',allow_extended_unicode_escapes=True), '\u1afe')
+        self.assertEqual(demjson.decode(r'"\u{41}"',allow_extended_unicode_escapes=True), 'A')
+        self.assertEqual(demjson.decode(r'"\u{1}"',allow_extended_unicode_escapes=True), '\u0001')
+        self.assertEqual(demjson.decode(r'"\u{00000000000041}"',allow_extended_unicode_escapes=True), 'A')
+        self.assertEqual(demjson.decode(r'"\u{1000a}"',allow_extended_unicode_escapes=True), '\U0001000a')
+        self.assertEqual(demjson.decode(r'"\u{10ffff}"',allow_extended_unicode_escapes=True), '\U0010FFFF')
+        self.assertEqual(demjson.decode(r'"\u{0000010ffff}"',allow_extended_unicode_escapes=True), '\U0010FFFF')
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, r'"\u{0041}"', strict=True)
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, r'"\u{110000}"', allow_extended_unicode_escapes=True)
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, r'"\u{012g}"', allow_extended_unicode_escapes=True)
@@ -678,27 +676,27 @@ class DemjsonTest(unittest.TestCase):
     def testDecodeStringRawUnicode(self):
         QT = ord('"')
         self.assertEqual(demjson.decode(rawbytes([ QT,0xC3,0xA0,QT ]),
-                                        encoding='utf-8'), u'\u00e0')
+                                        encoding='utf-8'), '\u00e0')
         self.assertEqual(demjson.decode(rawbytes([ QT,0,0,0, 0xE0,0,0,0, QT,0,0,0 ]),
-                                        encoding='ucs4le'), u'\u00e0')
+                                        encoding='ucs4le'), '\u00e0')
         self.assertEqual(demjson.decode(rawbytes([ 0,0,0,QT, 0,0,0,0xE0, 0,0,0,QT ]),
-                                        encoding='ucs4be'), u'\u00e0')
+                                        encoding='ucs4be'), '\u00e0')
         self.assertEqual(demjson.decode(rawbytes([ 0,0,0,QT, 0,0,0,0xE0, 0,0,0,QT ]),
-                                        encoding='utf-32be'), u'\u00e0')
+                                        encoding='utf-32be'), '\u00e0')
         self.assertEqual(demjson.decode(rawbytes([ 0,0,0xFE,0xFF, 0,0,0,QT, 0,0,0,0xE0, 0,0,0,QT ]),
-                                        encoding='ucs4'), u'\u00e0')
+                                        encoding='ucs4'), '\u00e0')
 
     def testEncodeStringRawUnicode(self):
         QT = ord('"')
-        self.assertEqual(demjson.encode(u'\u00e0', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u00e0', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ QT, 0xC3, 0xA0, QT ]) )
-        self.assertEqual(demjson.encode(u'\u00e0', escape_unicode=False, encoding='ucs4le'),
+        self.assertEqual(demjson.encode('\u00e0', escape_unicode=False, encoding='ucs4le'),
                          rawbytes([ QT,0,0,0, 0xE0,0,0,0, QT,0,0,0 ]) )
-        self.assertEqual(demjson.encode(u'\u00e0', escape_unicode=False, encoding='ucs4be'),
+        self.assertEqual(demjson.encode('\u00e0', escape_unicode=False, encoding='ucs4be'),
                          rawbytes([ 0,0,0,QT, 0,0,0,0xE0, 0,0,0,QT ]) )
-        self.assertEqual(demjson.encode(u'\u00e0', escape_unicode=False, encoding='utf-32be'),
+        self.assertEqual(demjson.encode('\u00e0', escape_unicode=False, encoding='utf-32be'),
                          rawbytes([ 0,0,0,QT, 0,0,0,0xE0, 0,0,0,QT ]) )
-        self.assertTrue(demjson.encode(u'\u00e0', escape_unicode=False, encoding='ucs4')
+        self.assertTrue(demjson.encode('\u00e0', escape_unicode=False, encoding='ucs4')
                         in [rawbytes([ 0,0,0xFE,0xFF, 0,0,0,QT, 0,0,0,0xE0, 0,0,0,QT ]),
                             rawbytes([ 0xFF,0xFE,0,0, QT,0,0,0, 0xE0,0,0,0, QT,0,0,0 ]) ])
 
@@ -707,36 +705,36 @@ class DemjsonTest(unittest.TestCase):
         # output encoding could have represented them in the raw.
 
         # Test U+001B escape - a control character
-        self.assertEqual(demjson.encode(u'\u001B', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u001B', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\u001b"' ]) )
         # Test U+007F delete - a control character
-        self.assertEqual(demjson.encode(u'\u007F', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u007F', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\u007f"' ]) )
         # Test U+00AD soft hyphen - a format control character
-        self.assertEqual(demjson.encode(u'\u00AD', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u00AD', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\u00ad"' ]) )
         # Test U+200F right-to-left mark
-        self.assertEqual(demjson.encode(u'\u200F', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u200F', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\u200f"' ]) )
         # Test U+2028 line separator
-        self.assertEqual(demjson.encode(u'\u2028', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u2028', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\u2028"' ]) )
         # Test U+2029 paragraph separator
-        self.assertEqual(demjson.encode(u'\u2029', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\u2029', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\u2029"' ]) )
         # Test U+E007F cancel tag
-        self.assertEqual(demjson.encode(u'\U000E007F', escape_unicode=False, encoding='utf-8'),
+        self.assertEqual(demjson.encode('\U000E007F', escape_unicode=False, encoding='utf-8'),
                          rawbytes([ ord(c) for c in '"\\udb40\\udc7f"' ]) )
 
     def testDecodeSupplementalUnicode(self):
         import sys
         if sys.maxunicode > 65535:
             self.assertEqual(demjson.decode( rawbytes([ ord(c) for c in r'"\udbc8\udf45"' ]) ),
-                             u'\U00102345')
+                             '\U00102345')
             self.assertEqual(demjson.decode( rawbytes([ ord(c) for c in r'"\ud800\udc00"' ]) ),
-                             u'\U00010000')
+                             '\U00010000')
             self.assertEqual(demjson.decode( rawbytes([ ord(c) for c in r'"\udbff\udfff"' ]) ),
-                             u'\U0010ffff')
+                             '\U0010ffff')
         for bad_case in [r'"\ud801"', r'"\udc02"',
                          r'"\ud801\udbff"', r'"\ud801\ue000"',
                          r'"\ud801\u2345"']:
@@ -749,11 +747,11 @@ class DemjsonTest(unittest.TestCase):
     def testEncodeSupplementalUnicode(self):
         import sys
         if sys.maxunicode > 65535:
-            self.assertEqual(demjson.encode(u'\U00010000',encoding='ascii'),
+            self.assertEqual(demjson.encode('\U00010000',encoding='ascii'),
                              rawbytes([ ord(c) for c in r'"\ud800\udc00"' ]) )
-            self.assertEqual(demjson.encode(u'\U00102345',encoding='ascii'),
+            self.assertEqual(demjson.encode('\U00102345',encoding='ascii'),
                              rawbytes([ ord(c) for c in r'"\udbc8\udf45"' ]) )
-            self.assertEqual(demjson.encode(u'\U0010ffff',encoding='ascii'),
+            self.assertEqual(demjson.encode('\U0010ffff',encoding='ascii'),
                              rawbytes([ ord(c) for c in r'"\udbff\udfff"' ]) )
 
     def have_codec(self, name):
@@ -772,7 +770,7 @@ class DemjsonTest(unittest.TestCase):
             # is different than ISO8859-1.
             d = rawbytes([ ord('"'), ord('a'), 0xe0, 0x8c, ord('"') ])
             self.assertEqual(demjson.decode( d, encoding='cp1252' ),
-                             u"a\u00e0\u0152")
+                             "a\u00e0\u0152")
 
     def testDecodeWithEBCDIC(self):
         have_ebcdic = self.have_codec('ibm037')
@@ -780,7 +778,7 @@ class DemjsonTest(unittest.TestCase):
             # Try EBCDIC
             d = rawbytes([ 0x7f, 0xc1, 0xc0, 0x7c, 0xe0, 0xa4, 0xf0, 0xf1, 0xf5, 0xf2, 0x7f ])
             self.assertEqual(demjson.decode( d, encoding='ibm037' ),
-                             u"A{@\u0152")
+                             "A{@\u0152")
 
     def testDecodeWithISO8859_1(self):
         have_iso8859_1 = self.have_codec('iso8859-1')
@@ -788,21 +786,21 @@ class DemjsonTest(unittest.TestCase):
             # Try ISO-8859-1
             d = rawbytes([ ord('"'), ord('a'), 0xe0, ord('\\'), ord('u'), ord('0'), ord('1'), ord('5'), ord('2'), ord('"') ])
             self.assertEqual(demjson.decode( d, encoding='iso8859-1' ),
-                             u"a\u00e0\u0152")
+                             "a\u00e0\u0152")
 
     def testDecodeWithCustomCodec(self):
         # Try Rot-1
         ci = rot_one.lookup('rot-1')
         d = rawbytes([ ord('"'), ord('A'), ord('B'), ord('Y'), ord('Z'), ord(' '), ord('5'), ord('"') ])
         self.assertEqual(demjson.decode( d, encoding=ci ),
-                         u"ZAXY 5")
+                         "ZAXY 5")
 
     def testDecodeWithDegenerateCodec(self):
         ci = no_curly_braces.lookup('degenerate')
 
         d = rawbytes([ord(c) for c in '"abc"' ])
         self.assertEqual(demjson.decode( d, encoding=ci ),
-                         u"abc")
+                         "abc")
 
         d = rawbytes([ord(c) for c in '{"abc":42}' ])
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, d, encoding=ci )
@@ -810,36 +808,36 @@ class DemjsonTest(unittest.TestCase):
     def testEncodeWithWindows1252(self):
         have_cp1252 = self.have_codec('cp1252')
         if have_cp1252:
-            s = u'a\u00e0\u0152'
+            s = 'a\u00e0\u0152'
             self.assertEqual(demjson.encode( s, encoding='cp1252' ),
                              rawbytes([ ord('"'), ord('a'), 0xe0, 0x8c, ord('"') ]) )
 
     def testEncodeWithEBCDIC(self):
         have_ebcdic = self.have_codec('ibm037')
         if have_ebcdic:
-            s = u"A{@\u0152"
+            s = "A{@\u0152"
             self.assertEqual(demjson.encode( s, encoding='ibm037' ),
                              rawbytes([ 0x7f, 0xc1, 0xc0, 0x7c, 0xe0, 0xa4, 0xf0, 0xf1, 0xf5, 0xf2, 0x7f ]) )
 
     def testEncodeWithISO8859_1(self):
         have_iso8859_1 = self.have_codec('iso8859-1')
         if have_iso8859_1:
-            s = u'a\u00e0\u0152'
+            s = 'a\u00e0\u0152'
             self.assertEqual(demjson.encode( s, encoding='iso8859-1' ),
                              rawbytes([ ord('"'), ord('a'), 0xe0, ord('\\'), ord('u'), ord('0'), ord('1'), ord('5'), ord('2'), ord('"') ]) )
 
     def testEncodeWithCustomCodec(self):
         # Try Rot-1
         ci = rot_one.lookup('rot-1')
-        d = u"ABYZ 5"
+        d = "ABYZ 5"
         self.assertEqual(demjson.encode( d, encoding=ci ),
                          rawbytes([ ord('"'), ord('B'), ord('C'), ord('Z'), ord('A'), ord(' '), ord('5'), ord('"') ]) )
 
     def testEncodeWithDegenerateCodec(self):
         ci = no_curly_braces.lookup('degenerate')
 
-        self.assertRaises(demjson.JSONEncodeError, demjson.encode, u'"abc"', encoding=ci )
-        self.assertRaises(demjson.JSONEncodeError, demjson.encode, u'{"abc":42}', encoding=ci )
+        self.assertRaises(demjson.JSONEncodeError, demjson.encode, '"abc"', encoding=ci )
+        self.assertRaises(demjson.JSONEncodeError, demjson.encode, '{"abc":42}', encoding=ci )
 
 
     def testDecodeArraySimple(self):
@@ -903,7 +901,7 @@ class DemjsonTest(unittest.TestCase):
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, '{"a":1,"a":1}', prevent_duplicate_keys=True)
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, '{"a":1,"a":2}', prevent_duplicate_keys=True)
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, '{"b":9,"a":1,"c":42,"a":2}', prevent_duplicate_keys=True)
-        self.assertRaises(demjson.JSONDecodeError, demjson.decode, '{"a":1,"\u0061":1}', prevent_duplicate_keys=True)
+        self.assertRaises(demjson.JSONDecodeError, demjson.decode, '{"a":1,"\\u0061":1}', prevent_duplicate_keys=True)
 
     def testDecodeObjectBad(self):
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, '{"a"}', strict=True)
@@ -948,7 +946,7 @@ class DemjsonTest(unittest.TestCase):
                 class i(object):
                     def __init__(self):
                         self.n = 0
-                    def next(self):
+                    def __next__(self):
                         self.n += 1
                         if self.n < 10:
                             return 2**self.n
@@ -959,12 +957,12 @@ class DemjsonTest(unittest.TestCase):
                          '[2,4,8,16,32,64,128,256,512]' )
 
     def testEncodeStringLike(self):
-        import UserString
-        class LikeString(UserString.UserString):
+        import collections
+        class LikeString(collections.UserString):
             pass
         mystring = LikeString('hello')
         self.assertEqual(demjson.encode(mystring), '"hello"')
-        mystring = LikeString(u'hi\u2012there')
+        mystring = LikeString('hi\u2012there')
         self.assertEqual(demjson.encode(mystring, escape_unicode=True, encoding='utf-8'),
                          rawbytes([ ord(c) for c in r'"hi\u2012there"' ]) )
 
@@ -986,7 +984,7 @@ class DemjsonTest(unittest.TestCase):
         # Form-feed is not a valid JSON whitespace char
         self.assertRaises(demjson.JSONDecodeError, demjson.decode, '\x0c[]', strict=True)
         # No-break-space is not a valid JSON whitespace char
-        self.assertRaises(demjson.JSONDecodeError, demjson.decode, u'\u00a0[]', strict=True)
+        self.assertRaises(demjson.JSONDecodeError, demjson.decode, '\u00a0[]', strict=True)
 
     def testDecodeInvalidStartingType(self):
         if False:
@@ -1084,9 +1082,9 @@ class DemjsonTest(unittest.TestCase):
         def pairs(dct):
             return sorted(dct.items())
         self.assertEqual(demjson.decode('{"a":42, "b":{"c":99}}'),
-                         {u'a': 42, u'b': {u'c': 99}} )
+                         {'a': 42, 'b': {'c': 99}} )
         self.assertEqual(demjson.decode('{"a":42, "b":{"c":99}}', decode_object=pairs),
-                         [(u'a', 42), (u'b', [(u'c', 99)])] )
+                         [('a', 42), ('b', [('c', 99)])] )
 
     def testDecodeStringHook(self):
         import string
@@ -1110,13 +1108,13 @@ class DemjsonTest(unittest.TestCase):
         d2 = {complex(0,42): "imaginary-forty-two", "a":"Alpha"}
 
         def make_key( k ):
-            if isinstance(k,basestring):
+            if isinstance(k,str):
                 raise demjson.JSONSkipHook
             else:
                 return repr(k)
 
         def make_key2( k ):
-            if isinstance(k, (int,basestring)):
+            if isinstance(k, (int,str)):
                 raise demjson.JSONSkipHook
             else:
                 return repr(k)
@@ -1202,7 +1200,7 @@ class DemjsonTest(unittest.TestCase):
         def enc_val( val ):
             if isinstance(val, complex):
                 return {'real':val.real, 'imaginary':val.imag}
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 return val.upper()
             elif isinstance(val, datetime.date):
                 return val.strftime("Year %Y Month %m Day %d")
@@ -1211,12 +1209,12 @@ class DemjsonTest(unittest.TestCase):
 
         v = {'ten':10, 'number': complex(3, 7.25), 'asof': datetime.date(2014,1,17)}
         self.assertEqual(demjson.encode( v, encode_value=enc_val ),
-                         u'{"ASOF":"YEAR 2014 MONTH 01 DAY 17","NUMBER":{"IMAGINARY":7.25,"REAL":3.0},"TEN":10}' )
+                         '{"ASOF":"YEAR 2014 MONTH 01 DAY 17","NUMBER":{"IMAGINARY":7.25,"REAL":3.0},"TEN":10}' )
 
     def testEncodeDefault(self):
         import datetime
         def dictkeys( d ):
-            return "/".join( sorted([ str(k) for k in d.keys() ]) )
+            return "/".join( sorted([ str(k) for k in list(d.keys()) ]) )
         def magic( d ):
             return complex( 1, len(d))
         class Anon(object):
@@ -1235,13 +1233,13 @@ class DemjsonTest(unittest.TestCase):
         vals = [ "abc", 123, Anon("Hello"), sys, {'a':42,'wow':True} ]
 
         self.assertEqual(demjson.encode( vals, encode_default=repr ),
-                         u'["abc",123,"%s","%s",{"a":42,"wow":true}]' % ( repr(vals[2]), repr(vals[3])) )
+                         '["abc",123,"%s","%s",{"a":42,"wow":true}]' % ( repr(vals[2]), repr(vals[3])) )
 
         self.assertEqual(demjson.encode( vals, encode_default=repr, encode_dict=dictkeys ),
-                         u'["abc",123,"%s","%s","a/wow"]' % ( repr(vals[2]), repr(vals[3])) )
+                         '["abc",123,"%s","%s","a/wow"]' % ( repr(vals[2]), repr(vals[3])) )
 
         self.assertEqual(demjson.encode( vals, encode_default=repr, encode_dict=magic ),
-                         u'["abc",123,"%s","%s","%s"]' % ( repr(vals[2]), repr(vals[3]), repr(magic(vals[4])) ) )
+                         '["abc",123,"%s","%s","%s"]' % ( repr(vals[2]), repr(vals[3]), repr(magic(vals[4])) ) )
 
 
         self.assertRaises( demjson.JSONEncodeError, demjson.encode, Anon("Hello") )
@@ -1249,12 +1247,12 @@ class DemjsonTest(unittest.TestCase):
         self.assertRaises( demjson.JSONEncodeError, demjson.encode, Anon2("Hello"), encode_default=encode_anon )
 
     def testEncodeDate(self):
-        d = datetime.date(2014,01,04)
+        d = datetime.date(2014,0o1,0o4)
         self.assertEqual(demjson.encode( d ), '"2014-01-04"' )
         self.assertEqual(demjson.encode( d, date_format='%m/%d/%Y' ), '"01/04/2014"' )
 
     def testEncodeDatetime(self):
-        d = datetime.datetime(2014,01,04,13,22,15)
+        d = datetime.datetime(2014,0o1,0o4,13,22,15)
         self.assertEqual(demjson.encode( d ), '"2014-01-04T13:22:15"' )
         self.assertEqual(demjson.encode( d, datetime_format='%m/%d/%Y %H hr %M min' ), '"01/04/2014 13 hr 22 min"' )
 
@@ -1417,8 +1415,8 @@ class DemjsonTest(unittest.TestCase):
         self.assertEqual( self.decode_stats( '"abc"' ).max_string_length, 3 )
         self.assertEqual( self.decode_stats( '"abc"' ).total_string_length, 3 )
         self.assertEqual( self.decode_stats( r'"\u2020"' ).max_string_length, 1 )
-        self.assertEqual( self.decode_stats( u'"\u2020"' ).max_string_length, 1 )
-        self.assertEqual( self.decode_stats( u'"\U0010ffff"' ).max_string_length, (1 if is_wide_python else 2) )
+        self.assertEqual( self.decode_stats( '"\u2020"' ).max_string_length, 1 )
+        self.assertEqual( self.decode_stats( '"\U0010ffff"' ).max_string_length, (1 if is_wide_python else 2) )
         self.assertEqual( self.decode_stats( r'"\ud804\udc88"' ).max_string_length, (1 if is_wide_python else 2) )
         self.assertEqual( self.decode_stats( '["","abc","defghi"]' ).max_string_length, 6 )
         self.assertEqual( self.decode_stats( '["","abc","defghi"]' ).total_string_length, 9 )
@@ -1428,8 +1426,8 @@ class DemjsonTest(unittest.TestCase):
         self.assertEqual( self.decode_stats( r'"\0"' ).max_codepoint, 0 )
         self.assertEqual( self.decode_stats( r'"\u0000"' ).min_codepoint, 0 )
         self.assertEqual( self.decode_stats( r'"\u0000"' ).max_codepoint, 0 )
-        self.assertEqual( self.decode_stats( u'"\u0000"' ).min_codepoint, 0 )
-        self.assertEqual( self.decode_stats( u'"\u0000"' ).max_codepoint, 0 )
+        self.assertEqual( self.decode_stats( '"\u0000"' ).min_codepoint, 0 )
+        self.assertEqual( self.decode_stats( '"\u0000"' ).max_codepoint, 0 )
         self.assertEqual( self.decode_stats( r'"\1"' ).min_codepoint, 1 )
         self.assertEqual( self.decode_stats( r'"\1"' ).max_codepoint, 1 )
         self.assertEqual( self.decode_stats( r'"\u0001"' ).min_codepoint, 1 )
@@ -1442,12 +1440,12 @@ class DemjsonTest(unittest.TestCase):
         self.assertEqual( self.decode_stats( r'"\377"' ).max_codepoint, 255 )
         self.assertEqual( self.decode_stats( r'"\uffff"' ).min_codepoint, 0xffff )
         self.assertEqual( self.decode_stats( r'"\uffff"' ).max_codepoint, 0xffff )
-        self.assertEqual( self.decode_stats( u'"\uffff"' ).min_codepoint, 0xffff )
-        self.assertEqual( self.decode_stats( u'"\uffff"' ).max_codepoint, 0xffff )
+        self.assertEqual( self.decode_stats( '"\uffff"' ).min_codepoint, 0xffff )
+        self.assertEqual( self.decode_stats( '"\uffff"' ).max_codepoint, 0xffff )
         self.assertEqual( self.decode_stats( '["mnoapj","kzcde"]' ).min_codepoint, ord('a') )
         self.assertEqual( self.decode_stats( '["mnoapj","kzcde"]' ).max_codepoint, ord('z') )
-        self.assertEqual( self.decode_stats( u'"\U0010ffff"' ).min_codepoint, (0x10ffff if is_wide_python else 0xdbff) )
-        self.assertEqual( self.decode_stats( u'"\U0010ffff"' ).max_codepoint, (0x10ffff if is_wide_python else 0xdfff) )
+        self.assertEqual( self.decode_stats( '"\U0010ffff"' ).min_codepoint, (0x10ffff if is_wide_python else 0xdbff) )
+        self.assertEqual( self.decode_stats( '"\U0010ffff"' ).max_codepoint, (0x10ffff if is_wide_python else 0xdfff) )
 
     def testStatsComments(self):
         self.assertEqual( self.decode_stats( 'true' ).num_comments, 0 )
@@ -1493,9 +1491,9 @@ class DemjsonTest(unittest.TestCase):
 
 def run_all_tests():
     unicode_width = 'narrow' if sys.maxunicode<=0xFFFF else 'wide'
-    print 'Running with demjson version %s, Python version %s with %s-Unicode' % (demjson.__version__, sys.version.split(' ',1)[0],unicode_width)
+    print('Running with demjson version %s, Python version %s with %s-Unicode' % (demjson.__version__, sys.version.split(' ',1)[0],unicode_width))
     if int( demjson.__version__.split('.',1)[0] ) < 2:
-        print 'WARNING: TESTING AGAINST AN OLD VERSION!'
+        print('WARNING: TESTING AGAINST AN OLD VERSION!')
     unittest.main()
     
 if __name__ == '__main__':
