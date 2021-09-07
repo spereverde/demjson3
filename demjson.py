@@ -158,16 +158,12 @@ version, version_info = __version__, __version_info__
 
 
 # Determine Python version
-_py_major, _py_minor = None, None
-def _get_pyver():
-    global _py_major, _py_minor
-    import sys
-    vi = sys.version_info
-    try:
-        _py_major, _py_minor = vi.major, vi.minor
-    except AttributeError:
-        _py_major, _py_minor = vi[0], vi[1]
-_get_pyver()
+import sys
+vi = sys.version_info
+try:
+    _py_major, _py_minor = vi.major, vi.minor
+except AttributeError:
+    _py_major, _py_minor = vi[0], vi[1]
 
 # ----------------------------------------------------------------------
 # Useful global constants
@@ -195,11 +191,8 @@ _dummy_context_manager = _dummy_context_manager()
 # way to tell what the largest floating-point number it supports.  So,
 # we detemine the precision and scale of the float type by testing it.
 
-try:
-    # decimal module was introduced in Python 2.4
-    import decimal
-except ImportError:
-    decimal = None
+# decimal module was introduced in Python 2.4
+import decimal
 
 
 def determine_float_limits( number_type=float ):
@@ -242,15 +235,12 @@ def determine_float_limits( number_type=float ):
              subnormal numbers are excluded.
 
     """
-    if decimal:
-        numeric_exceptions = (ValueError,decimal.Overflow,decimal.Underflow)
-    else:
-        numeric_exceptions = (ValueError,)
+    numeric_exceptions = (ValueError,decimal.Overflow,decimal.Underflow)
 
-    if decimal and number_type == decimal.Decimal:
+    if number_type == decimal.Decimal:
         number_type = decimal.DefaultContext
 
-    if decimal and isinstance(number_type, decimal.Context):
+    if isinstance(number_type, decimal.Context):
         # Passed a decimal Context, extract the bound creator function.
         create_num = number_type.create_decimal
         decimal_ctx = decimal.localcontext(number_type)
@@ -414,9 +404,9 @@ def _nonnumber_float_constants():
                 # Next, try binary unpacking.  Should work under
                 # platforms using IEEE 754 floating point.
                 import struct, sys
-                xnan = '7ff8000000000000'.decode('hex')  # Quiet NaN
-                xinf = '7ff0000000000000'.decode('hex')
-                xcheck = 'bdc145651592979d'.decode('hex') # -3.14159e-11
+                xnan = bytes(bytearray.fromhex('7ff8000000000000').decode())  # Quiet NaN
+                xinf = bytes(bytearray.fromhex('7ff0000000000000').decode())
+                xcheck = bytes(bytearray.fromhex('bdc145651592979d').decode()) # -3.14159e-11
                 # Could use float.__getformat__, but it is a new python feature,
                 # so we use sys.byteorder.
                 if sys.byteorder == 'big':
@@ -462,10 +452,7 @@ def _nonnumber_float_constants():
                     def __ge__(self,x): return False
                     def __gt__(self,x): return False
                     def __complex__(self,*a): raise NotImplementedError('NaN can not be converted to a complex')
-                if decimal:
-                    nan = decimal.Decimal('NaN')
-                else:
-                    nan = nan()
+                nan = decimal.Decimal('NaN')
                 class inf(float):
                     """An approximation of the +Infinity floating point number."""
                     def __repr__(self): return 'inf'
@@ -3112,7 +3099,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
             self._sort_keys = method
         elif method in sorting_method_aliases: # alias
             self._sort_keys = sorting_method_aliases[method]
-        elif method == True:
+        elif method:
             self._sort_keys = SORT_ALPHA
         else:
             raise ValueError("Not a valid sorting method: %r" % method)

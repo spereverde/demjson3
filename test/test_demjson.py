@@ -27,14 +27,8 @@ import demjson
 # ------------------------------
 # Python version-specific stuff...
 
-is_python3 = False
+is_python3 = True
 is_python27_plus = False
-try:
-    is_python3 = (sys.version_info.major >= 3)
-    is_python27_plus = (sys.version_info.major > 2 or (sys.version_info.major==2 and sys.version_info.minor >= 7))
-except AttributeError:
-    is_python3 = (sys.version_info[0] >= 3)
-    is_python27_plus = (sys.version_info[0] > 2 or (sys.version_info[0]==2 and sys.version_info[1] >= 7))
 
 is_wide_python = (sys.maxunicode > 0xFFFF)
 
@@ -101,21 +95,14 @@ def is_infinity( n ):
 ## ------------------------------
 
 def rawbytes( byte_list ):
-    if is_python3:
-        b = bytes( byte_list )
-    else:
-        b = ''.join(chr(n) for n in byte_list)
+    b = bytes( byte_list )
     return b
 
 ## ------------------------------
 
-try:
-    import UserDict
-    dict_mixin = UserDict.DictMixin
-except ImportError:
-    # Python 3 has no UserDict. MutableMapping is close, but must
-    # supply own __iter__() and __len__() methods.
-    dict_mixin = collections.MutableMapping
+# Python 3 has no UserDict. MutableMapping is close, but must
+# supply own __iter__() and __len__() methods.
+dict_mixin = collections.abc.MutableMapping
 
 # A class that behaves like a dict, but is not a subclass of dict
 class LetterOrdDict(dict_mixin):
@@ -166,10 +153,7 @@ class rot_one(codecs.CodecInfo):
         return (rawbytes(byte_list), i+1)
     @staticmethod
     def decode( byte_list ):
-        if is_python3:
-            byte_values = byte_list
-        else:
-            byte_values = [ord(n) for n in byte_list]
+        byte_values = byte_list
         chars = []
         for i, b in enumerate(byte_values):
             if ord('B') <= b <= ord('Z'):
@@ -204,10 +188,7 @@ class no_curly_braces(codecs.CodecInfo):
         return (rawbytes(byte_list), i+1)
     @staticmethod
     def decode( byte_list ):
-        if is_python3:
-            byte_values = byte_list
-        else:
-            byte_values = [ord(n) for n in byte_list]
+        byte_values = byte_list
         chars = []
         for i, b in enumerate(byte_values):
             if b > 0x7f or b == ord('{') or b == ord('}'):
@@ -218,9 +199,8 @@ class no_curly_braces(codecs.CodecInfo):
 
 ## ------------------------------
 
-if is_python3:
-    def hexencode_bytes( bytelist ):
-        return ''.join( ['%02x' % n for n in bytelist] )
+def hexencode_bytes( bytelist ):
+    return ''.join( ['%02x' % n for n in bytelist] )
 
 ## ============================================================
 

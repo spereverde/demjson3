@@ -37,7 +37,6 @@ for parsing JavaScript data which may not strictly be valid JSON data.
                     "Intended Audience :: Developers",
                     "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
                     "Operating System :: OS Independent",
-                    "Programming Language :: Python :: 2",
                     "Programming Language :: Python :: 3",
                     "Topic :: Software Development :: Libraries :: Python Modules",
                     "Topic :: Internet :: WWW/HTTP :: Dynamic Content"

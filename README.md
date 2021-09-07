@@ -1,5 +1,9 @@
-demjson
+demjson3
 =======
+
+This is a fork of the popular tool demjson to only support Python 3.
+The decision to do this is mainly based on all the headache caused
+by trying to support Python 2 AND 3.
 
 <b>demjson</b> is a [Python language](http://python.org/) module for
 encoding, decoding, and syntax-checking [JSON](http://json.org/)
