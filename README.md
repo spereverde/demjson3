@@ -1,5 +1,9 @@
 demjson3
 =======
+[![Build Status](https://app.travis-ci.com/nielstron/demjson3.svg?branch=master)](https://app.travis-ci.com/nielstron/demjson3)
+[![Coverage Status](https://coveralls.io/repos/github/nielstron/demjson3/badge.svg?branch=master)](https://coveralls.io/github/nielstron/demjson3?branch=master)
+[![Package Version](https://img.shields.io/pypi/v/demjson3)](https://pypi.org/project/demjson3/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/demjson3.svg)](https://pypi.org/project/demjson3/)
 
 This is a fork of the popular tool demjson to only support Python 3.
 The decision to do this is mainly based on all the headache caused
