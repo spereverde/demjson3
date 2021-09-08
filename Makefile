@@ -3,7 +3,6 @@
 # See the INSTALL.txt file for specific instructions.
 
 PYTHON=python
-PYDOC=pydoc
 
 MODULE=demjson3
 VERSION=3.0.0
@@ -13,7 +12,7 @@ SETUP = setup.py
 READMES = README.txt LICENSE.txt docs/CHANGES.txt docs/INSTALL.txt docs/NEWS.txt
 TESTS = test/test_$(MODULE).py
 #DOCS = docs/$(MODULE).html docs/$(MODULE).txt docs/jsonlint.txt
-DOCS = docs/$(MODULE).txt docs/jsonlint.txt
+DOCS = docs/$(MODULE).txt docs/jsonlint.txt docs/$(MODULE).html
 SCRIPTS = jsonlint
 DISTDIR = dist
 
@@ -60,7 +59,7 @@ $(DIST_FILE): MANIFEST.in $(ALL_FILES)
 
 docs: $(DOCS) ALWAYS
 
-docs/jsonlint.txt: jsonlint demjson.py
+docs/jsonlint.txt: jsonlint $(MODULE).py
 	PYTHONPATH=. ./jsonlint --help >$@
 	echo "" >>$@
 	PYTHONPATH=. ./jsonlint --strict --help-behaviors >>$@
@@ -69,10 +68,10 @@ docs/$(MODULE).txt:     $(MODULE).py
 	pydoc $(MODULE) | sed -e 's|/home/[a-zA-Z0-9_/.-]*/$(MODULE)/dev/||' >docs/$(MODULE).txt
 
 docs/$(MODULE).html:    $(MODULE).py
-	$(PYDOC) -w $(MODULE)
-	sed -e 's|file:/home/[a-zA-Z0-9_]+/public_html|http://deron.meranda.us|g' \
+	$(PYTHON) -m pydoc -w $(MODULE)
+	sed -e 's|file:/home/[a-zA-Z0-9_]+/public_html|http://nielstron.github.io/demjson3|g' \
 	   -e 's|>/home/[a-zA-Z0-9_]+/public_html/python/$(MODULE)/[a-zA-Z0-9.]*/|>|g' \
 	   -e 's|>/home/[a-zA-Z0-9/.-]*/$(MODULE)/dev/|>|g' \
 	   -e 's|file:/[^<>]*/dev/|../|g' \
-	<$(MODULE).html >docs/$(MODULE).html
+	<$(MODULE).html >docs/index.html
 	rm -f $(MODULE).html

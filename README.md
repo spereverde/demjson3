@@ -50,7 +50,7 @@ changes were made from 2.0.
 <b>Version 2.0</b>, released 2014-05-21, is a MAJOR new version with many
 changes and improvements.
 
-Additional documentation may also be found
+Visit http://nielstron.github.io/demjson3/ for complete details and documentation. Additional documentation may also be found
 under the "docs/" folder of the source.
 
 The biggest changes in 2.0 include:
@@ -165,6 +165,9 @@ has built-in usage instructions as well.  Just type:
 ```bash
    jsonlint --help
 ```
+
+Complete documentation and additional information is also available
+on the project homepage at http://nielstron.github.io/demjson3/
 
 It is also available on the Python Package Index (PyPI) at
 http://pypi.python.org/pypi/demjson3/
