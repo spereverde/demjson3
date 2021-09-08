@@ -27,7 +27,7 @@ after_success:
 
 before_deploy:
 - git config --local user.name "nielstron"
-- export TRAVIS_TAG=release-$(cat setup.py | grep version= | cut -d "\"" -f 2)
+- export TRAVIS_TAG=release-$(cat setup.py | grep "version = " | cut -d "\"" -f 2)
 - git tag $TRAVIS_TAG || echo "Tag already exists"
 
 deploy:

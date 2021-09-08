@@ -1,7 +1,7 @@
 # Python package setup script        -*- coding: utf-8 -*-
 
 name = "demjson3"
-version = "3.0.0"
+version = "3.0.1"
 
 from setuptools import setup
 
@@ -33,7 +33,7 @@ for parsing JavaScript data which may not strictly be valid JSON data.
     keywords=["JSON", "jsonlint", "JavaScript", "UTF-32"],
     platforms=[],
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
         "Operating System :: OS Independent",
