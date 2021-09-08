@@ -40,7 +40,7 @@ deploy:
     password:
       secure: Gks/w6gaq8lYtFLrc92tTPj2+dWt12NqjOTbYRgywJnzi5Eh5lshTf2gJl9b/9WHldSLyUWn/EIWDLLS71yUJOF0O1Y82KfSQ7WoZZovTvd0VmC63z6/bV7ZQ8oiVTfa+saUG3aRsadbOqSnPoHGM1HGQ+CZaE8NLaEKf4IqdQiZDXd4ESnJV4th0wn/WM53uPsBgZxnaiyn+o9NU93QI7AhC2v3KL/yUHc/MCZ5+P7pq7U+Ve5GATZtDVMTKE7BhWWE1eQAhRem0k047EsmwgvgWDk3e2iD7YO56Cm8OkOQE/D4fJiLXajZWVJ0tcJMq7h9yCANm4xjTMnaS617j3zt+YK1cUXESiTmxCjuIUZCmmfqxVrMP5xVhFlmk8V4hj7eqKMKv+M+4zHT7lkvH0Im3X0b+BwnR4V9zIhg21sq73SoAc0SLv6hpDZV7yjhmXlPa/E5Yvcs2tLxYZ3Da3Mm9/GFX0R0m7uWo+VfvR9jbbxcwl+SgIsGCt/0uiCVxlv7Tmblb4pVwvqBDOP+E+X4g0DkV4tSEm9ISu9xfsMEGqxOOfuBrwVkde9SgeTjhegHx+z6yFMCUH4THL4CPcYrik/tOgIIve2wKV704QDEA49NtLisag+k/9U+DdWVYJv6nHwwLaOO2irqxGUd6WR/WjyMtszqs1PgvcQiy+U=
   - provider: releases
-    cleanup: true
+    cleanup: false
     overwrite: false
     on:
       branch: master
