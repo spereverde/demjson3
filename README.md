@@ -5,7 +5,7 @@ demjson3
 [![Package Version](https://img.shields.io/pypi/v/demjson3)](https://pypi.org/project/demjson3/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/demjson3.svg)](https://pypi.org/project/demjson3/)
 
-This is a fork of the popular tool demjson to only support Python 3.
+This is a fork of the popular tool [demjson](https://github.com/dmeranda/demjson) to only support Python 3.
 The decision to do this is mainly based on all the headache caused
 by trying to support Python 2 AND 3.
 
