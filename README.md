@@ -50,8 +50,7 @@ changes were made from 2.0.
 <b>Version 2.0</b>, released 2014-05-21, is a MAJOR new version with many
 changes and improvements.
 
-Visit http://deron.meranda.us/python/demjson/ for complete details
-and documentation.  Additional documentation may also be found
+Additional documentation may also be found
 under the "docs/" folder of the source.
 
 The biggest changes in 2.0 include:
@@ -62,10 +61,7 @@ The biggest changes in 2.0 include:
   * Handles many additional Python data types automatically
   * Statistics
 
-There are many more changes, as well as a small number of backwards
-incompatibilities.  Where possible these incompatibilities were kept
-to a minimum, however it is highly recommended that you read the
-change notes thoroughly.
+There are many more changes.
 
 
 Example use
