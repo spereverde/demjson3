@@ -16,8 +16,11 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name=name,
     version=version,
-    py_modules=[name],
-    scripts=["jsonlint"],
+    py_modules=[name, 'jsonlint'],
+    entry_points={
+        'console_scripts': [
+            'jsonlint = jsonlint:main'
+         ]},
     author="Deron Meranda",
     author_email="deron.meranda@gmail.com",
     description="encoder, decoder, and lint/validator for JSON (JavaScript Object Notation) compliant with RFC 7159",
