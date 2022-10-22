@@ -147,15 +147,11 @@ or <http://www.fsf.org/licensing/>.
 
 # ----------------------------------------------------------------------
 
-# Set demjson version
-try:
-    from collections import namedtuple as _namedtuple
+from collections import namedtuple as _namedtuple
 
-    __version_info__ = _namedtuple("version_info", ["major", "minor", "micro"])(
-        *__version_info__
-    )
-except ImportError:
-    raise ImportError("demjson %s requires a Python 2.6 or later" % __version__)
+__version_info__ = _namedtuple("version_info", ["major", "minor", "micro"])(
+    *__version_info__
+)
 
 version, version_info = __version__, __version_info__
 
@@ -451,350 +447,10 @@ def _nonnumber_float_constants():
                 if check != -3.14159e-11:
                     raise ValueError("Unpacking raw IEEE 754 floats does not work")
             except (ValueError, TypeError):
-                # Punt, make some fake classes to simulate.  These are
-                # not perfect though.  For instance nan * 1.0 == nan,
-                # as expected, but 1.0 * nan == 0.0, which is wrong.
-                class nan(float):
-                    """An approximation of the NaN (not a number) floating point number."""
-
-                    def __repr__(self):
-                        return "nan"
-
-                    def __str__(self):
-                        return "nan"
-
-                    def __add__(self, x):
-                        return self
-
-                    def __radd__(self, x):
-                        return self
-
-                    def __sub__(self, x):
-                        return self
-
-                    def __rsub__(self, x):
-                        return self
-
-                    def __mul__(self, x):
-                        return self
-
-                    def __rmul__(self, x):
-                        return self
-
-                    def __div__(self, x):
-                        return self
-
-                    def __rdiv__(self, x):
-                        return self
-
-                    def __divmod__(self, x):
-                        return (self, self)
-
-                    def __rdivmod__(self, x):
-                        return (self, self)
-
-                    def __mod__(self, x):
-                        return self
-
-                    def __rmod__(self, x):
-                        return self
-
-                    def __pow__(self, exp):
-                        return self
-
-                    def __rpow__(self, exp):
-                        return self
-
-                    def __neg__(self):
-                        return self
-
-                    def __pos__(self):
-                        return self
-
-                    def __abs__(self):
-                        return self
-
-                    def __lt__(self, x):
-                        return False
-
-                    def __le__(self, x):
-                        return False
-
-                    def __eq__(self, x):
-                        return False
-
-                    def __neq__(self, x):
-                        return True
-
-                    def __ge__(self, x):
-                        return False
-
-                    def __gt__(self, x):
-                        return False
-
-                    def __complex__(self, *a):
-                        raise NotImplementedError(
-                            "NaN can not be converted to a complex"
-                        )
-
+                # use the decimal package to fake it
                 nan = decimal.Decimal("NaN")
-
-                class inf(float):
-                    """An approximation of the +Infinity floating point number."""
-
-                    def __repr__(self):
-                        return "inf"
-
-                    def __str__(self):
-                        return "inf"
-
-                    def __add__(self, x):
-                        return self
-
-                    def __radd__(self, x):
-                        return self
-
-                    def __sub__(self, x):
-                        return self
-
-                    def __rsub__(self, x):
-                        return self
-
-                    def __mul__(self, x):
-                        if x is neginf or x < 0:
-                            return neginf
-                        elif x == 0:
-                            return nan
-                        else:
-                            return self
-
-                    def __rmul__(self, x):
-                        return self.__mul__(x)
-
-                    def __div__(self, x):
-                        if x == 0:
-                            raise ZeroDivisionError("float division")
-                        elif x < 0:
-                            return neginf
-                        else:
-                            return self
-
-                    def __rdiv__(self, x):
-                        if x is inf or x is neginf or x is nan:
-                            return nan
-                        return 0.0
-
-                    def __divmod__(self, x):
-                        if x == 0:
-                            raise ZeroDivisionError("float divmod()")
-                        elif x < 0:
-                            return (nan, nan)
-                        else:
-                            return (self, self)
-
-                    def __rdivmod__(self, x):
-                        if x is inf or x is neginf or x is nan:
-                            return (nan, nan)
-                        return (0.0, x)
-
-                    def __mod__(self, x):
-                        if x == 0:
-                            raise ZeroDivisionError("float modulo")
-                        else:
-                            return nan
-
-                    def __rmod__(self, x):
-                        if x is inf or x is neginf or x is nan:
-                            return nan
-                        return x
-
-                    def __pow__(self, exp):
-                        if exp == 0:
-                            return 1.0
-                        else:
-                            return self
-
-                    def __rpow__(self, x):
-                        if -1 < x < 1:
-                            return 0.0
-                        elif x == 1.0:
-                            return 1.0
-                        elif x is nan or x is neginf or x < 0:
-                            return nan
-                        else:
-                            return self
-
-                    def __neg__(self):
-                        return neginf
-
-                    def __pos__(self):
-                        return self
-
-                    def __abs__(self):
-                        return self
-
-                    def __lt__(self, x):
-                        return False
-
-                    def __le__(self, x):
-                        if x is self:
-                            return True
-                        else:
-                            return False
-
-                    def __eq__(self, x):
-                        if x is self:
-                            return True
-                        else:
-                            return False
-
-                    def __neq__(self, x):
-                        if x is self:
-                            return False
-                        else:
-                            return True
-
-                    def __ge__(self, x):
-                        return True
-
-                    def __gt__(self, x):
-                        return True
-
-                    def __complex__(self, *a):
-                        raise NotImplementedError(
-                            "Infinity can not be converted to a complex"
-                        )
-
-                if decimal:
-                    inf = decimal.Decimal("Infinity")
-                else:
-                    inf = inf()
-
-                class neginf(float):
-                    """An approximation of the -Infinity floating point number."""
-
-                    def __repr__(self):
-                        return "-inf"
-
-                    def __str__(self):
-                        return "-inf"
-
-                    def __add__(self, x):
-                        return self
-
-                    def __radd__(self, x):
-                        return self
-
-                    def __sub__(self, x):
-                        return self
-
-                    def __rsub__(self, x):
-                        return self
-
-                    def __mul__(self, x):
-                        if x is self or x < 0:
-                            return inf
-                        elif x == 0:
-                            return nan
-                        else:
-                            return self
-
-                    def __rmul__(self, x):
-                        return self.__mul__(self)
-
-                    def __div__(self, x):
-                        if x == 0:
-                            raise ZeroDivisionError("float division")
-                        elif x < 0:
-                            return inf
-                        else:
-                            return self
-
-                    def __rdiv__(self, x):
-                        if x is inf or x is neginf or x is nan:
-                            return nan
-                        return -0.0
-
-                    def __divmod__(self, x):
-                        if x == 0:
-                            raise ZeroDivisionError("float divmod()")
-                        elif x < 0:
-                            return (nan, nan)
-                        else:
-                            return (self, self)
-
-                    def __rdivmod__(self, x):
-                        if x is inf or x is neginf or x is nan:
-                            return (nan, nan)
-                        return (-0.0, x)
-
-                    def __mod__(self, x):
-                        if x == 0:
-                            raise ZeroDivisionError("float modulo")
-                        else:
-                            return nan
-
-                    def __rmod__(self, x):
-                        if x is inf or x is neginf or x is nan:
-                            return nan
-                        return x
-
-                    def __pow__(self, exp):
-                        if exp == 0:
-                            return 1.0
-                        else:
-                            return self
-
-                    def __rpow__(self, x):
-                        if x is nan or x is inf or x is inf:
-                            return nan
-                        return 0.0
-
-                    def __neg__(self):
-                        return inf
-
-                    def __pos__(self):
-                        return self
-
-                    def __abs__(self):
-                        return inf
-
-                    def __lt__(self, x):
-                        return True
-
-                    def __le__(self, x):
-                        return True
-
-                    def __eq__(self, x):
-                        if x is self:
-                            return True
-                        else:
-                            return False
-
-                    def __neq__(self, x):
-                        if x is self:
-                            return False
-                        else:
-                            return True
-
-                    def __ge__(self, x):
-                        if x is self:
-                            return True
-                        else:
-                            return False
-
-                    def __gt__(self, x):
-                        return False
-
-                    def __complex__(self, *a):
-                        raise NotImplementedError(
-                            "-Infinity can not be converted to a complex"
-                        )
-
-                if decimal:
-                    neginf = decimal.Decimal("-Infinity")
-                else:
-                    neginf = neginf(0)
+                inf = decimal.Decimal("Infinity")
+                neginf = decimal.Decimal("-Infinity")
     return nan, inf, neginf
 
 
@@ -1397,7 +1053,7 @@ class helpers(object):
             ords.append(x)
 
         # Look for BOM marker
-        import sys, codecs
+        import codecs
 
         bom2, bom3, bom4 = None, None, None
         if len(s) >= 2:
@@ -1619,7 +1275,7 @@ class helpers(object):
         if isinstance(obj, str):
             return True
         # Must also check for some other pseudo-string types
-        import types, collections
+        import collections
 
         return isinstance(obj, (str,)) or isinstance(obj, collections.UserString)
         ## or isinstance(obj, UserString.MutableString)
@@ -1910,7 +1566,7 @@ class buffered_stream(object):
         try:
             old_pos = self.__saved_pos.pop()  # Can raise IndexError
         except IndexError as err:
-            raise IndexError("Attempt to restore buffer position that was never saved")
+            raise IndexError("Attempt to restore buffer position that was never saved") from err
         else:
             self.__pos = old_pos
             return True
@@ -1936,7 +1592,6 @@ class buffered_stream(object):
         the start of the new document.
 
         """
-        import sys
 
         self.rewind()
         self.__codec = None
@@ -2521,7 +2176,6 @@ class encode_state(object):
     """
 
     def __init__(self, jsopts=None, parent=None):
-        import sys
 
         self.chunks = []
         if not parent:
@@ -2760,7 +2414,6 @@ class decode_state(object):
 
     def set_input(self, txt, encoding=None):
         """Initialize the state by setting the input document text."""
-        import sys
 
         self.reset()
         try:
@@ -2771,11 +2424,13 @@ class decode_state(object):
             self.push_exception(err)
         except Exception as err:
             # Re-raise as JSONDecodeError
-            e2 = sys.exc_info()
             newerr = JSONDecodeError(
                 "Error while reading input", position=0, severity="fatal"
             )
-            self.push_exception(err)
+            try:
+                raise newerr from err
+            except JSONDecodeError as err:
+                self.push_exception(err)
             self.buf = None
         else:
             if self.buf.bom:
@@ -3079,14 +2734,14 @@ class _behaviors_metaclass(type):
                 def getx(self, name=name, forval=v):
                     return self.get_behavior(name) == forval
 
-                attrs["is_" + v + "_" + name] = property(
+                attrs["is_" + vs] = property(
                     getx, doc=v.capitalize() + " " + doc
                 )
                 # method value_name()
                 fnset = lambda self, _name=name, _value=v: self.set_behavior(
                     _name, _value
                 )
-                fnset.__name__ = v + "_" + name
+                fnset.__name__ = vs
                 fnset.__doc__ = "Set behavior " + name + " to " + v + "."
                 attrs[fnset.__name__] = fnset
 
@@ -4079,10 +3734,7 @@ class JSON(object):
                 severity=severity
             )
 
-            # Simulate Python 3's: "raise X from Y" exception chaining
-            newerr.__cause__ = err
-            newerr.__traceback__ = exc_info[2]
-            raise newerr
+            raise newerr from err
         return rval
 
     def isws(self, c):
@@ -4428,7 +4080,7 @@ class JSON(object):
                     number,
                     position=start_position,
                 )
-                units = "0"
+                units_s = "0"
             elif len(units_s) > 1 and units_s[0] == "0":
                 has_leading_zero = True
                 if self.options.is_forbid_leading_zeros:
@@ -4641,7 +4293,7 @@ class JSON(object):
                         uc = helpers.surrogate_pair_as_unicode(
                             high_surrogate, low_surrogate
                         )
-                    except ValueError as err:
+                    except ValueError:
                         state.push_error(
                             "Illegal Unicode surrogate pair",
                             (high_surrogate, low_surrogate),
@@ -4806,7 +4458,7 @@ class JSON(object):
                             uc = helpers.surrogate_pair_as_unicode(
                                 high_surrogate, low_surrogate
                             )
-                        except ValueError as err:
+                        except ValueError:
                             state.push_error(
                                 "Illegal Unicode surrogate pair",
                                 (high_surrogate, low_surrogate),
@@ -5246,7 +4898,7 @@ class JSON(object):
         while not buf.at_end:
             c = buf.peekstr(2)
             if c == "/*" or c == "//":
-                cmt = self.skip_comment(state)
+                self.skip_comment(state)
             elif buf.at_ws(uniws):
                 buf.skipws(uniws)
             else:
@@ -5561,8 +5213,6 @@ class JSON(object):
             * True: the return value is always a 2-tuple: (object, error_list)
 
         """
-        import sys
-
         state = decode_state(options=self.options)
 
         # Prepare the input
@@ -5586,7 +5236,7 @@ class JSON(object):
                 try:
                     raise newerr from err
                 except Exception as err:
-                    state.push_exception(newerr)
+                    state.push_exception(err)
 
         if return_stats and state.buf:
             state.stats.num_excess_whitespace = state.buf.num_ws_skipped
@@ -5759,7 +5409,7 @@ class JSON(object):
         can be encoded.
 
         """
-        import sys, codecs
+        import codecs
 
         # Make a fresh encoding state
         state = encode_state(self.options)
@@ -5821,7 +5471,7 @@ class JSON(object):
             except UnicodeError as err:
                 raise JSONEncodeError(
                     "Output encoding %s is not sufficient to encode JSON" % cdk.name
-                )
+                ) from err
 
         # Do the JSON encoding!
         self._do_encode(obj, state)
@@ -5884,7 +5534,7 @@ class JSON(object):
                     self.try_encode_default(obj, state)
                 except Exception as err2:
                     # Default handlers couldn't deal with it, re-raise original exception.
-                    raise err1
+                    raise err2 from err1
         elif obj_classification == "string":
             self.encode_string(obj, state)
         elif obj_classification == "enum":  # Python 3.4 enum.Enum
@@ -5963,8 +5613,6 @@ class JSON(object):
         encode() method instead.
 
         """
-        import sys
-
         if not obj_classification:
             obj_classification = self._classify_for_encoding(obj)
 
@@ -6385,7 +6033,6 @@ def decode(txt, encoding=None, **kwargs):
     See the hooks documentation on the JSON.set_hook() method.
 
     """
-    import sys
 
     # Initialize the JSON object
     return_errors = False
@@ -6807,7 +6454,7 @@ MORE INFORMATION:
         Use "--help" for usage syntax, or consult the 'usage' member.
 
         """
-        import sys, os, getopt, unicodedata
+        import sys, getopt, unicodedata
 
         recursion_limit = None
         success = True
@@ -7079,7 +6726,7 @@ the options --allow, --warn, or --forbid ; for example:
                     # checking multiple files, do not change a
                     # previous error back to ok.
                     success = False
-            except KeyboardInterrupt as err:
+            except KeyboardInterrupt:
                 sys.stderr.write("\njsonlint interrupted!\n")
                 sys.exit(1)
 

@@ -5,15 +5,18 @@ cache:
 
 jobs:
   include:
-  - python: '3.6'
-  - python: '3.7'
-  - python: '3.8'
+    - python: '3.5'
+    - python: '3.6'
+    - python: '3.7'
+    - python: '3.8'
+    - python: '3.9'
   fast_finish: true
 
 dist: xenial
 os: linux
 
 install:
+- if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pip install -U importlib_metadata; fi
 - pip install coverage coveralls
 - pip install pdoc3
 - pip install -e .
@@ -38,7 +41,7 @@ deploy:
   - provider: pypi
     on:
       branch: master
-      python: '3.8'
+      python: '3.9'
     skip_existing: true
     username: "__token__"
     password:
@@ -48,7 +51,7 @@ deploy:
     overwrite: false
     on:
       branch: master
-      python: '3.8'
+      python: '3.9'
       condition: "$TRAVIS_EVENT_TYPE = push"
     api_key:
       secure: oE9354cYf8dLDLzJ0vSmaA7Hr929pWM6rtGQIUlrva+H+sO1On/aVxmkpbR1bUq0/UArxvAGXvK98UnjcDDaJDZ0ipcjfKR77XTl+qWHgWdHnJ9zG0xTyhHpfBkZceK/k7DVJBGKw0F54VTFu33WVihDF+lW43tD/07l5w6leASgO3Dp9QRzSPDY8ZSRgcjWZwYJd6ynQ7AAr92BQxKL2Nzhe2iYM9tZhcETeXnjCU1ujUl8eIhAqv/XEUAv88fgEBIsZwm1zAtiSNkJhA60RNLWTex/QoJ1Mp1nC5mn2cqjZvKKnQLBkLqzbzIXrdZFvI7H4MEwsbfU85Pw89GkiH3PhPkNs/xD2VywIphVTv5vFZhjj6OzinhG83nKUOE+a5PaWTNSovjuKzAWl7OZ/PwXRMa+nqg00GMUevzBghcJmboBnHl8IMcdrmclF967jesFkV7y1gDBl7o302gUHnOeD3Q+nnxNcsmA4XfblZaBcrhLlcnk+wMPNEX0gmhP8NtFpBAq9VGiTPFnhWjDR3DTHjeoHmaYQ1Zc2NkzyPIam+XrCX6vc2fSo41L4CygU808sK5cttS5xK8lLsJYA1B5GwPXUd+AxfRw6rxwg/3tn1XqR+siwUCJ8J5Vw1ULpfzHr1LjVuwbTjj1S+RenCrmsExdHL5uJzxFE75JffA=
@@ -59,6 +62,6 @@ deploy:
     keep_history: true
     on:
       branch: master
-      python: '3.8'
+      python: '3.9'
       condition: "$TRAVIS_EVENT_TYPE = push"
     commiter_from_gh: true
