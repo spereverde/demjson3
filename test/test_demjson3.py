@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """This module tests demjson.py using unittest.
 
 NOTE ON PYTHON 3: If running in Python 3, you must transform this test
@@ -152,8 +151,7 @@ class LetterOrdDict(dict_mixin):
         return len(self._letters)
 
     def __iter__(self):
-        for v in self._letters:
-            yield v
+        yield from self._letters
 
 
 ## ------------------------------
@@ -617,7 +615,7 @@ class DemjsonTest(unittest.TestCase):
         except TypeError:
             raise self.failureException("can't compare non-string to regex: %r" % value)
         if m is None:
-            raise self.failureException(msg or "%r !~ /%s/" % (value, pattern))
+            raise self.failureException(msg or f"{value!r} !~ /{pattern}/")
 
     def testEncodeNumber(self):
         self.assertEqual(demjson3.encode(0), "0")
@@ -1543,9 +1541,9 @@ class DemjsonTest(unittest.TestCase):
         )
 
     def testEncodeArrayLike(self):
-        class LikeList(object):
+        class LikeList:
             def __iter__(self):
-                class i(object):
+                class i:
                     def __init__(self):
                         self.n = 0
 
@@ -1873,7 +1871,7 @@ class DemjsonTest(unittest.TestCase):
 
     def testEncodeSequence(self):
         def list2hash(seq):
-            return dict([(str(i), val) for i, val in enumerate(seq)])
+            return {str(i): val for i, val in enumerate(seq)}
 
         d = [1, 2, 3, [4, 5, 6], 7, 8]
         self.assertEqual(
@@ -1926,14 +1924,14 @@ class DemjsonTest(unittest.TestCase):
         def magic(d):
             return complex(1, len(d))
 
-        class Anon(object):
+        class Anon:
             def __init__(self, val):
                 self.v = val
 
             def __repr__(self):
                 return "<ANON>"
 
-        class Anon2(object):
+        class Anon2:
             def __init__(self, val):
                 self.v = val
 
@@ -1952,7 +1950,7 @@ class DemjsonTest(unittest.TestCase):
 
         self.assertEqual(
             demjson3.encode(vals, encode_default=repr, encode_dict=dictkeys),
-            '["abc",123,"%s","%s","a/wow"]' % (repr(vals[2]), repr(vals[3])),
+            f'["abc",123,"{repr(vals[2])}","{repr(vals[3])}","a/wow"]',
         )
 
         self.assertEqual(

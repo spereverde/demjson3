@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 r""" A JSON data encoder and decoder.
 
@@ -172,7 +171,7 @@ content_type = "application/json"
 file_ext = "json"
 
 
-class _dummy_context_manager(object):
+class _dummy_context_manager:
     """A context manager that does nothing on entry or exit."""
 
     def __enter__(self):
@@ -361,7 +360,7 @@ def determine_float_precision():
 # JavaScript behavior we must simulate it.
 
 
-class _undefined_class(object):
+class _undefined_class:
     """Represents the ECMAScript 'undefined' value."""
 
     __slots__ = []
@@ -486,7 +485,7 @@ class json_int(int):  # Have to specify base this way to satisfy 2to3
                 raise TypeError("json_int(): Invalid value for number_format argument")
         else:
             number_format = NUMBER_FORMAT_DECIMAL
-        obj = super(json_int, cls).__new__(cls, *args, **kwargs)
+        obj = super().__new__(cls, *args, **kwargs)
         obj._jsonfmt = number_format
         return obj
 
@@ -781,9 +780,9 @@ class utf32(codecs.CodecInfo):
                     chars.append(chr(0xFFFD))
                 elif errors == "backslashreplace":
                     if n > 0xFFFF:
-                        esc = "\\u%04x" % (n,)
+                        esc = f"\\u{n:04x}"
                     else:
-                        esc = "\\U%08x" % (n,)
+                        esc = f"\\U{n:08x}"
                     for esc_c in esc:
                         chars.append(esc_c)
                 elif errors == "xmlcharrefreplace":
@@ -822,7 +821,7 @@ def _make_unsafe_string_chars():
     return "".join(unsafe)
 
 
-class helpers(object):
+class helpers:
     """A set of utility functions."""
 
     hexdigits = "0123456789ABCDEFabcdef"
@@ -1360,7 +1359,7 @@ class helpers(object):
 # ----------------------------------------------------------------------
 
 
-class position_marker(object):
+class position_marker:
     """A position marks a specific place in a text document.
     It consists of the following attributes:
 
@@ -1447,14 +1446,14 @@ class position_marker(object):
         self.__text_after = value
 
     def __repr__(self):
-        s = "%s(offset=%r,line=%r,column=%r" % (
+        s = "{}(offset={!r},line={!r},column={!r}".format(
             self.__class__.__name__,
             self.__char_position,
             self.__line,
             self.__column,
         )
         if self.text_after:
-            s += ",text_after=%r" % (self.text_after,)
+            s += f",text_after={self.text_after!r}"
         s += ")"
         return s
 
@@ -1523,7 +1522,7 @@ class position_marker(object):
 # ----------------------------------------------------------------------
 
 
-class buffered_stream(object):
+class buffered_stream:
     """A helper class for the JSON parser.
 
     It allows for reading an input document, while handling some
@@ -1613,7 +1612,7 @@ class buffered_stream(object):
             self.__cmax = len(self.__rawbuf)
 
     def __repr__(self):
-        return "<%s at %r text %r>" % (
+        return "<{} at {!r} text {!r}>".format(
             self.__class__.__name__,
             self.__pos,
             self.text_context,
@@ -2003,7 +2002,7 @@ class JSONError(JSONException):
             if kw == "severity":
                 if val not in self.severities:
                     raise TypeError(
-                        "%s given invalid severity %r" % (self.__class__.__name__, val)
+                        f"{self.__class__.__name__} given invalid severity {val!r}"
                     )
                 self.severity = val
             elif kw == "position":
@@ -2017,7 +2016,7 @@ class JSONError(JSONException):
                     "%s does not accept %r keyword argument"
                     % (self.__class__.__name__, kw)
                 )
-        super(JSONError, self).__init__(message, *args)
+        super().__init__(message, *args)
         self.message = message
 
     @property
@@ -2032,14 +2031,14 @@ class JSONError(JSONException):
             self._position = pos
 
     def __repr__(self):
-        s = "%s(%r" % (self.__class__.__name__, self.message)
+        s = f"{self.__class__.__name__}({self.message!r}"
         for a in self.args[1:]:
-            s += ", %r" % (a,)
+            s += f", {a!r}"
         if self.position:
-            s += ", position=%r" % (self.position,)
+            s += f", position={self.position!r}"
         if self.outer_position:
-            s += ", outer_position=%r" % (self.outer_position,)
-        s += ", severity=%r)" % (self.severity,)
+            s += f", outer_position={self.outer_position!r}"
+        s += f", severity={self.severity!r})"
         return s
 
     def pretty_description(self, show_positions=True, filename=None):
@@ -2056,7 +2055,7 @@ class JSONError(JSONException):
         else:
             err += "    "
         # Print severity and main error message
-        err += " %s: %s" % (self.severity.capitalize(), self.message)
+        err += f" {self.severity.capitalize()}: {self.message}"
         if len(self.args) > 1:
             err += ": "
             for anum, a in enumerate(self.args[1:]):
@@ -2084,21 +2083,21 @@ class JSONError(JSONException):
             if self.position == 0:
                 err += "\n   |  At start of input"
             else:
-                err += "\n   |  At %s" % (self.position.describe(show_text=False),)
+                err += f"\n   |  At {self.position.describe(show_text=False)}"
                 if self.position.text_after:
-                    err += "\n   |    near text: %r" % (self.position.text_after,)
+                    err += f"\n   |    near text: {self.position.text_after!r}"
         # Show context
         if show_positions and self.outer_position:
             if self.context_description:
                 cdesc = self.context_description.capitalize()
             else:
                 cdesc = "Context"
-            err += "\n   |  %s started at %s" % (
+            err += "\n   |  {} started at {}".format(
                 cdesc,
                 self.outer_position.describe(show_text=False),
             )
             if self.outer_position.text_after:
-                err += "\n   |    with text: %r" % (self.outer_position.text_after,)
+                err += f"\n   |    with text: {self.outer_position.text_after!r}"
         return err
 
 
@@ -2120,7 +2119,7 @@ class JSONDecodeHookError(JSONDecodeError):
             exc_info = (None, None, None)
         exc_type, self.hook_exception, self.hook_traceback = exc_info
         self.object_type = type(encoded_obj)
-        msg = "Hook %s raised %r while decoding type <%s>" % (
+        msg = "Hook {} raised {!r} while decoding type <{}>".format(
             hook_name,
             self.hook_exception.__class__.__name__
             if self.hook_exception is not None
@@ -2130,7 +2129,7 @@ class JSONDecodeHookError(JSONDecodeError):
         if len(args) >= 1:
             msg += ": " + str(args[0])
             args = args[1:]
-        super(JSONDecodeHookError, self).__init__(msg, *args, **kwargs)
+        super().__init__(msg, *args, **kwargs)
 
 
 class JSONEncodeError(JSONError):
@@ -2151,7 +2150,7 @@ class JSONEncodeHookError(JSONEncodeError):
             exc_info = (None, None, None)
         exc_type, self.hook_exception, self.hook_traceback = exc_info
         self.object_type = type(encoded_obj)
-        msg = "Hook %s raised %r while encoding type <%s>" % (
+        msg = "Hook {} raised {!r} while encoding type <{}>".format(
             self.hook_name,
             self.hook_exception.__class__.__name__
             if self.hook_exception is not None
@@ -2161,7 +2160,7 @@ class JSONEncodeHookError(JSONEncodeError):
         if len(args) >= 1:
             msg += ": " + str(args[0])
             args = args[1:]
-        super(JSONEncodeHookError, self).__init__(msg, *args, **kwargs)
+        super().__init__(msg, *args, **kwargs)
 
 
 # ----------------------------------------------------------------------
@@ -2169,7 +2168,7 @@ class JSONEncodeHookError(JSONEncodeError):
 # ----------------------------------------------------------------------
 
 
-class encode_state(object):
+class encode_state:
     """An internal transient object used during JSON encoding to
     record the current construction state.
 
@@ -2223,7 +2222,7 @@ class encode_state(object):
 # ----------------------------------------------------------------------
 
 
-class decode_statistics(object):
+class decode_statistics:
     """An object that records various statistics about a decoded JSON document."""
 
     int8_max = 0x7F
@@ -2373,7 +2372,7 @@ class decode_statistics(object):
 # ----------------------------------------------------------------------
 
 
-class decode_state(object):
+class decode_state:
     """An internal transient object used during JSON decoding to
     record the current parsing state and error messages.
 
@@ -2758,7 +2757,7 @@ class _behaviors_metaclass(type):
         @property
         def all_behaviors(self):
             """Returns the names of all known behaviors."""
-            return set([t[0] for t in self._behaviors])
+            return {t[0] for t in self._behaviors}
 
         attrs["all_behaviors"] = all_behaviors
 
@@ -2785,13 +2784,11 @@ class _behaviors_metaclass(type):
         for v in values:
             # property value_behaviors
             def getbehaviorsfor(self, value=v):
-                return set(
-                    [
+                return {
                         name
                         for name in self.all_behaviors
                         if getattr(self, name) == value
-                    ]
-                )
+                }
 
             attrs[v + "_behaviors"] = property(
                 getbehaviorsfor,
@@ -2816,7 +2813,7 @@ class _behaviors_metaclass(type):
 
         attrs["__eq__"] = behaviors_eq
 
-        return super(_behaviors_metaclass, cls).__new__(cls, clsname, bases, attrs)
+        return super().__new__(cls, clsname, bases, attrs)
 
 
 SORT_NONE = "none"
@@ -2871,7 +2868,7 @@ from enum import Enum as _enum
 from collections import OrderedDict as _OrderedDict
 
 
-class json_options(object, metaclass=_behaviors_metaclass):
+class json_options(metaclass=_behaviors_metaclass):
     """Options to determine how strict the decoder or encoder should be."""
 
     _behavior_values = (ALLOW, WARN, FORBID)
@@ -3470,7 +3467,7 @@ class json_options(object, metaclass=_behaviors_metaclass):
 # ----------------------------------------------------------------------
 
 
-class JSON(object):
+class JSON:
     """An encoder/decoder for JSON data streams.
 
     Usually you will call the encode() or decode() methods.  The other
@@ -3708,7 +3705,7 @@ class JSON(object):
             raise AttributeError("No such hook %r" % hook_name)
         hook = getattr(self, hook_name + "_hook")
         if not callable(hook):
-            raise TypeError("Hook is not callable: %r" % (hook,))
+            raise TypeError(f"Hook is not callable: {hook!r}")
         try:
             rval = hook(input_object, *args, **kwargs)
         except JSONSkipHook:
@@ -4700,7 +4697,7 @@ class JSON(object):
                     i += 1
                     if 0xDC00 <= cord <= 0xDFFF:
                         lsurrogate = cord
-                        chunks.append(r"\u%04x\u%04x" % (hsurrogate, lsurrogate))
+                        chunks.append(fr"\u{hsurrogate:04x}\u{lsurrogate:04x}")
                         handled_raw_surrogates = True
                 if not handled_raw_surrogates:
                     cname = "U+%04X" % cord
@@ -6118,7 +6115,7 @@ def encode_to_file(filename, obj, encoding="utf-8", overwrite=False, **kwargs):
         raise TypeError("Expected a file name")
 
     if not overwrite and os.path.exists(filename):
-        raise IOError(errno.EEXIST, "File exists: %r" % filename)
+        raise OSError(errno.EEXIST, "File exists: %r" % filename)
 
     jsondata = encode(obj, encoding=encoding, **kwargs)
 
@@ -6157,7 +6154,7 @@ def decode_file(filename, encoding=None, **kwargs):
 # ======================================================================
 
 
-class jsonlint(object):
+class jsonlint:
     """This class contains most of the logic for the "jsonlint" command.
 
     You generally create an instance of this class, to defined the
@@ -6343,11 +6340,11 @@ MORE INFORMATION:
         except JSONError as err:
             success = self.SUCCESS_FAIL
             if verbose_fp:
-                verbose_fp.write("%s%s\n" % (pfx, err.pretty_description()))
+                verbose_fp.write(f"{pfx}{err.pretty_description()}\n")
         except Exception as err:
             success = self.SUCCESS_FAIL
             if verbose_fp:
-                verbose_fp.write("%s%s\n" % (pfx, str(err)))
+                verbose_fp.write(f"{pfx}{str(err)}\n")
         else:
             errors = [
                 err for err in results.errors if err.severity in ("fatal", "error")
@@ -6401,8 +6398,8 @@ MORE INFORMATION:
                 fp = open(filename, "rb")
                 jsondata = fp.read()
                 fp.close()
-            except IOError as err:
-                self.stderr.write("%s: %s\n" % (pfx, str(err)))
+            except OSError as err:
+                self.stderr.write(f"{pfx}: {str(err)}\n")
                 return self.SUCCESS_FAIL
             if verbose:
                 verbose_fp = self.stdout
@@ -6423,8 +6420,8 @@ MORE INFORMATION:
                 try:
                     fp = open(output_filename, "wb")
                     fp.write(reformatted)
-                except IOError as err:
-                    self.stderr.write("%s: %s\n" % (pfx, str(err)))
+                except OSError as err:
+                    self.stderr.write(f"{pfx}: {str(err)}\n")
                     success = False
             else:
                 if hasattr(
@@ -6564,15 +6561,15 @@ the options --allow, --warn, or --forbid ; for example:
                     % (self.program_name, __name__, __version__, __date__)
                 )
                 if verbose == True:
-                    self.stdout.write("demjson from %r\n" % (__file__,))
+                    self.stdout.write(f"demjson from {__file__!r}\n")
                 if verbose == True:
                     self.stdout.write(
-                        "Python version: %s\n" % (sys.version.replace("\n", " "),)
+                        "Python version: {}\n".format(sys.version.replace("\n", " "))
                     )
                     self.stdout.write("This python implementation supports:\n")
-                    self.stdout.write("  * Max unicode: U+%X\n" % (sys.maxunicode,))
+                    self.stdout.write(f"  * Max unicode: U+{sys.maxunicode:X}\n")
                     self.stdout.write(
-                        "  * Unicode version: %s\n" % (unicodedata.unidata_version,)
+                        f"  * Unicode version: {unicodedata.unidata_version}\n"
                     )
                     self.stdout.write(
                         "  * Floating-point significant digits: %d\n"
@@ -6586,14 +6583,14 @@ the options --allow, --warn, or --forbid ; for example:
                     else:
                         szero = "Yes"
                     self.stdout.write(
-                        "  * Floating-point has signed-zeros: %s\n" % (szero,)
+                        f"  * Floating-point has signed-zeros: {szero}\n"
                     )
                     if decimal:
                         has_dec = "Yes"
                     else:
                         has_dec = "No"
                     self.stdout.write(
-                        "  * Decimal (bigfloat) support: %s\n" % (has_dec,)
+                        f"  * Decimal (bigfloat) support: {has_dec}\n"
                     )
                 return 0
             elif opt == "--copyright":
@@ -6601,7 +6598,7 @@ the options --allow, --warn, or --forbid ; for example:
                     '%s is distributed as part of the "demjson" python package.\n'
                     % (self.program_name,)
                 )
-                self.stdout.write("See %s\n\n\n" % (__homepage__,))
+                self.stdout.write(f"See {__homepage__}\n\n\n")
                 self.stdout.write(__credits__)
                 return 0
             elif opt in ("-v", "--verbose"):

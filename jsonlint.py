@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 r"""A JSON syntax validator and formatter tool.
 
 Requires demjson module.
