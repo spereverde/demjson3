@@ -1,119 +1,119 @@
 #!/usr/bin/env python
 #
-r""" A JSON data encoder and decoder.
+r"""A JSON data encoder and decoder.
 
- This Python module implements the JSON (http://json.org/) data
- encoding format; a subset of ECMAScript (aka JavaScript) for encoding
- primitive data types (numbers, strings, booleans, lists, and
- associative arrays) in a language-neutral simple text-based syntax.
- 
- It can encode or decode between JSON formatted strings and native
- Python data types.  Normally you would use the encode() and decode()
- functions defined by this module, but if you want more control over
- the processing you can use the JSON class.
+This Python module implements the JSON (http://json.org/) data
+encoding format; a subset of ECMAScript (aka JavaScript) for encoding
+primitive data types (numbers, strings, booleans, lists, and
+associative arrays) in a language-neutral simple text-based syntax.
 
- This implementation tries to be as completely cormforming to all
- intricacies of the standards as possible.  It can operate in strict
- mode (which only allows JSON-compliant syntax) or a non-strict mode
- (which allows much more of the whole ECMAScript permitted syntax).
- This includes complete support for Unicode strings (including
- surrogate-pairs for non-BMP characters), and all number formats
- including negative zero and IEEE 754 non-numbers such a NaN or
- Infinity.
+It can encode or decode between JSON formatted strings and native
+Python data types.  Normally you would use the encode() and decode()
+functions defined by this module, but if you want more control over
+the processing you can use the JSON class.
 
- The JSON/ECMAScript to Python type mappings are:
-    ---JSON---             ---Python---
-    null                   None
-    undefined              undefined  (note 1)
-    Boolean (true,false)   bool  (True or False)
-    Integer                int or long  (note 2)
-    Float                  float
-    String                 str or unicode  ( "..." or u"..." )
-    Array [a, ...]         list  ( [...] )
-    Object {a:b, ...}      dict  ( {...} )
-    
-    -- Note 1. an 'undefined' object is declared in this module which
-       represents the native Python value for this type when in
-       non-strict mode.
+This implementation tries to be as completely cormforming to all
+intricacies of the standards as possible.  It can operate in strict
+mode (which only allows JSON-compliant syntax) or a non-strict mode
+(which allows much more of the whole ECMAScript permitted syntax).
+This includes complete support for Unicode strings (including
+surrogate-pairs for non-BMP characters), and all number formats
+including negative zero and IEEE 754 non-numbers such a NaN or
+Infinity.
 
-    -- Note 2. some ECMAScript integers may be up-converted to Python
-       floats, such as 1e+40.  Also integer -0 is converted to
-       float -0, so as to preserve the sign (which ECMAScript requires).
+The JSON/ECMAScript to Python type mappings are:
+   ---JSON---             ---Python---
+   null                   None
+   undefined              undefined  (note 1)
+   Boolean (true,false)   bool  (True or False)
+   Integer                int or long  (note 2)
+   Float                  float
+   String                 str or unicode  ( "..." or u"..." )
+   Array [a, ...]         list  ( [...] )
+   Object {a:b, ...}      dict  ( {...} )
 
-    -- Note 3. numbers requiring more significant digits than can be
-       represented by the Python float type will be converted into a
-       Python Decimal type, from the standard 'decimal' module.
+   -- Note 1. an 'undefined' object is declared in this module which
+      represents the native Python value for this type when in
+      non-strict mode.
 
- In addition, when operating in non-strict mode, several IEEE 754
- non-numbers are also handled, and are mapped to specific Python
- objects declared in this module:
+   -- Note 2. some ECMAScript integers may be up-converted to Python
+      floats, such as 1e+40.  Also integer -0 is converted to
+      float -0, so as to preserve the sign (which ECMAScript requires).
 
-     NaN (not a number)     nan    (float('nan'))
-     Infinity, +Infinity    inf    (float('inf'))
-     -Infinity              neginf (float('-inf'))
+   -- Note 3. numbers requiring more significant digits than can be
+      represented by the Python float type will be converted into a
+      Python Decimal type, from the standard 'decimal' module.
 
- When encoding Python objects into JSON, you may use types other than
- native lists or dictionaries, as long as they support the minimal
- interfaces required of all sequences or mappings.  This means you can
- use generators and iterators, tuples, UserDict subclasses, etc.
+In addition, when operating in non-strict mode, several IEEE 754
+non-numbers are also handled, and are mapped to specific Python
+objects declared in this module:
 
- To make it easier to produce JSON encoded representations of user
- defined classes, if the object has a method named json_equivalent(),
- then it will call that method and attempt to encode the object
- returned from it instead.  It will do this recursively as needed and
- before any attempt to encode the object using it's default
- strategies.  Note that any json_equivalent() method should return
- "equivalent" Python objects to be encoded, not an already-encoded
- JSON-formatted string.  There is no such aid provided to decode
- JSON back into user-defined classes as that would dramatically
- complicate the interface.
- 
- When decoding strings with this module it may operate in either
- strict or non-strict mode.  The strict mode only allows syntax which
- is conforming to RFC 7159 (JSON), while the non-strict allows much
- more of the permissible ECMAScript syntax.
+    NaN (not a number)     nan    (float('nan'))
+    Infinity, +Infinity    inf    (float('inf'))
+    -Infinity              neginf (float('-inf'))
 
- The following are permitted when processing in NON-STRICT mode:
+When encoding Python objects into JSON, you may use types other than
+native lists or dictionaries, as long as they support the minimal
+interfaces required of all sequences or mappings.  This means you can
+use generators and iterators, tuples, UserDict subclasses, etc.
 
-    * Unicode format control characters are allowed anywhere in the input.
-    * All Unicode line terminator characters are recognized.
-    * All Unicode white space characters are recognized.
-    * The 'undefined' keyword is recognized.
-    * Hexadecimal number literals are recognized (e.g., 0xA6, 0177).
-    * String literals may use either single or double quote marks.
-    * Strings may contain \x (hexadecimal) escape sequences, as well as the
-      \v and \0 escape sequences.
-    * Lists may have omitted (elided) elements, e.g., [,,,,,], with
-      missing elements interpreted as 'undefined' values.
-    * Object properties (dictionary keys) can be of any of the
-      types: string literals, numbers, or identifiers (the later of
-      which are treated as if they are string literals)---as permitted
-      by ECMAScript.  JSON only permits strings literals as keys.
+To make it easier to produce JSON encoded representations of user
+defined classes, if the object has a method named json_equivalent(),
+then it will call that method and attempt to encode the object
+returned from it instead.  It will do this recursively as needed and
+before any attempt to encode the object using it's default
+strategies.  Note that any json_equivalent() method should return
+"equivalent" Python objects to be encoded, not an already-encoded
+JSON-formatted string.  There is no such aid provided to decode
+JSON back into user-defined classes as that would dramatically
+complicate the interface.
 
- Concerning non-strict and non-ECMAScript allowances:
+When decoding strings with this module it may operate in either
+strict or non-strict mode.  The strict mode only allows syntax which
+is conforming to RFC 7159 (JSON), while the non-strict allows much
+more of the permissible ECMAScript syntax.
 
-    * Octal numbers: If you allow the 'octal_numbers' behavior (which
-      is never enabled by default), then you can use octal integers
-      and octal character escape sequences (per the ECMAScript
-      standard Annex B.1.2).  This behavior is allowed, if enabled,
-      because it was valid JavaScript at one time.
+The following are permitted when processing in NON-STRICT mode:
 
-    * Multi-line string literals:  Strings which are more than one
-      line long (contain embedded raw newline characters) are never
-      permitted. This is neither valid JSON nor ECMAScript.  Some other
-      JSON implementations may allow this, but this module considers
-      that behavior to be a mistake.
+   * Unicode format control characters are allowed anywhere in the input.
+   * All Unicode line terminator characters are recognized.
+   * All Unicode white space characters are recognized.
+   * The 'undefined' keyword is recognized.
+   * Hexadecimal number literals are recognized (e.g., 0xA6, 0177).
+   * String literals may use either single or double quote marks.
+   * Strings may contain \x (hexadecimal) escape sequences, as well as the
+     \v and \0 escape sequences.
+   * Lists may have omitted (elided) elements, e.g., [,,,,,], with
+     missing elements interpreted as 'undefined' values.
+   * Object properties (dictionary keys) can be of any of the
+     types: string literals, numbers, or identifiers (the later of
+     which are treated as if they are string literals)---as permitted
+     by ECMAScript.  JSON only permits strings literals as keys.
 
- References:
-    * JSON (JavaScript Object Notation)
-      <http://json.org/>
-    * RFC 7159. The application/json Media Type for JavaScript Object Notation (JSON)
-      <http://www.ietf.org/rfc/rfc7159.txt>
-    * ECMA-262 3rd edition (1999)
-      <http://www.ecma-international.org/publications/files/ecma-st/ECMA-262.pdf>
-    * IEEE 754-1985: Standard for Binary Floating-Point Arithmetic.
-      <http://www.cs.berkeley.edu/~ejr/Projects/ieee754/>
-    
+Concerning non-strict and non-ECMAScript allowances:
+
+   * Octal numbers: If you allow the 'octal_numbers' behavior (which
+     is never enabled by default), then you can use octal integers
+     and octal character escape sequences (per the ECMAScript
+     standard Annex B.1.2).  This behavior is allowed, if enabled,
+     because it was valid JavaScript at one time.
+
+   * Multi-line string literals:  Strings which are more than one
+     line long (contain embedded raw newline characters) are never
+     permitted. This is neither valid JSON nor ECMAScript.  Some other
+     JSON implementations may allow this, but this module considers
+     that behavior to be a mistake.
+
+References:
+   * JSON (JavaScript Object Notation)
+     <http://json.org/>
+   * RFC 7159. The application/json Media Type for JavaScript Object Notation (JSON)
+     <http://www.ietf.org/rfc/rfc7159.txt>
+   * ECMA-262 3rd edition (1999)
+     <http://www.ecma-international.org/publications/files/ecma-st/ECMA-262.pdf>
+   * IEEE 754-1985: Standard for Binary Floating-Point Arithmetic.
+     <http://www.cs.berkeley.edu/~ejr/Projects/ieee754/>
+
 """
 
 __author__ = "Deron Meranda <http://deron.meranda.us/>, Niels Mündler"
@@ -1163,10 +1163,10 @@ class helpers:
             unitxt, numbytes = cdk.decode(txt, **cdk_kw)  # DO THE DECODE HERE!
 
             # Remove BOM if present
-            if len(unitxt) > 0 and unitxt[0] == "\uFEFF":
+            if len(unitxt) > 0 and unitxt[0] == "\ufeff":
                 bom = cdk.encode(unitxt[0])[0]
                 unitxt = unitxt[1:]
-            elif len(unitxt) > 0 and unitxt[0] == "\uFFFE":  # Reversed BOM
+            elif len(unitxt) > 0 and unitxt[0] == "\ufffe":  # Reversed BOM
                 raise UnicodeDecodeError(
                     cdk.name, txt, 0, 0, "Wrong byte order, found reversed BOM U+FFFE"
                 )
@@ -1565,7 +1565,9 @@ class buffered_stream:
         try:
             old_pos = self.__saved_pos.pop()  # Can raise IndexError
         except IndexError as err:
-            raise IndexError("Attempt to restore buffer position that was never saved") from err
+            raise IndexError(
+                "Attempt to restore buffer position that was never saved"
+            ) from err
         else:
             self.__pos = old_pos
             return True
@@ -2121,9 +2123,11 @@ class JSONDecodeHookError(JSONDecodeError):
         self.object_type = type(encoded_obj)
         msg = "Hook {} raised {!r} while decoding type <{}>".format(
             hook_name,
-            self.hook_exception.__class__.__name__
-            if self.hook_exception is not None
-            else None,
+            (
+                self.hook_exception.__class__.__name__
+                if self.hook_exception is not None
+                else None
+            ),
             self.object_type.__name__,
         )
         if len(args) >= 1:
@@ -2152,9 +2156,11 @@ class JSONEncodeHookError(JSONEncodeError):
         self.object_type = type(encoded_obj)
         msg = "Hook {} raised {!r} while encoding type <{}>".format(
             self.hook_name,
-            self.hook_exception.__class__.__name__
-            if self.hook_exception is not None
-            else None,
+            (
+                self.hook_exception.__class__.__name__
+                if self.hook_exception is not None
+                else None
+            ),
             self.object_type.__name__,
         )
         if len(args) >= 1:
@@ -2234,8 +2240,8 @@ class decode_statistics:
     int64_max = 0x7FFFFFFFFFFFFFFF
     int64_min = -0x7FFFFFFFFFFFFFFF - 1
 
-    double_int_max = 2 ** 53 - 1
-    double_int_min = -(2 ** 53 - 1)
+    double_int_max = 2**53 - 1
+    double_int_min = -(2**53 - 1)
 
     def __init__(self):
         # Nesting
@@ -2506,7 +2512,7 @@ class decode_state:
             outer_position=outer_position,
             context_description=context_description,
             severity=severity,
-            *args
+            *args,
         )
         self.push_exception(err)
 
@@ -2539,7 +2545,7 @@ class decode_state:
                 self.options.non_portable,
                 "Strings longer than %d may not be portable"
                 % self.options.warn_string_length,
-                **kwargs
+                **kwargs,
             )
         if len(s) > 0:
             mincp = ord(min(s))
@@ -2556,7 +2562,7 @@ class decode_state:
                     self.options.non_portable,
                     "Strings containing non-BMP characters (U+%04X) may not be portable"
                     % maxcp,
-                    **kwargs
+                    **kwargs,
                 )
 
     def update_negzero_int_stats(self, **kwargs):
@@ -2566,7 +2572,7 @@ class decode_state:
             self.push_cond(
                 self.options.non_portable,
                 "Negative zero (-0) integers are usually not portable",
-                **kwargs
+                **kwargs,
             )
 
     def update_negzero_float_stats(self, **kwargs):
@@ -2576,7 +2582,7 @@ class decode_state:
             self.push_cond(
                 self.options.non_portable,
                 "Negative zero (-0.0) numbers may not be portable",
-                **kwargs
+                **kwargs,
             )
 
     def update_float_stats(self, float_value, **kwargs):
@@ -2596,7 +2602,7 @@ class decode_state:
                 self.push_cond(
                     self.options.non_portable,
                     'Floats larger or more precise than an IEEE "double" may not be portable',
-                    **kwargs
+                    **kwargs,
                 )
         elif isinstance(float_value, float):
             st.num_floats += 1
@@ -2631,7 +2637,7 @@ class decode_state:
                 self.push_cond(
                     self.options.non_portable,
                     "Integers larger than 53-bits are not portable",
-                    **kwargs
+                    **kwargs,
                 )
 
 
@@ -2733,9 +2739,7 @@ class _behaviors_metaclass(type):
                 def getx(self, name=name, forval=v):
                     return self.get_behavior(name) == forval
 
-                attrs["is_" + vs] = property(
-                    getx, doc=v.capitalize() + " " + doc
-                )
+                attrs["is_" + vs] = property(getx, doc=v.capitalize() + " " + doc)
                 # method value_name()
                 fnset = lambda self, _name=name, _value=v: self.set_behavior(
                     _name, _value
@@ -2785,9 +2789,7 @@ class _behaviors_metaclass(type):
             # property value_behaviors
             def getbehaviorsfor(self, value=v):
                 return {
-                        name
-                        for name in self.all_behaviors
-                        if getattr(self, name) == value
+                    name for name in self.all_behaviors if getattr(self, name) == value
                 }
 
             attrs[v + "_behaviors"] = property(
@@ -3728,7 +3730,7 @@ class JSON:
                 input_object,
                 *args,
                 position=position,
-                severity=severity
+                severity=severity,
             )
 
             raise newerr from err
@@ -4138,7 +4140,7 @@ class JSON:
                 # ----- A DECIMAL INTEGER
                 ival = int(units_s)
                 if exponent != 0:
-                    ival *= 10 ** exponent
+                    ival *= 10**exponent
                 state.update_integer_stats(ival, sign=sign, position=start_position)
                 n = state.options.make_int(ival, sign)
             else:
@@ -4697,7 +4699,7 @@ class JSON:
                     i += 1
                     if 0xDC00 <= cord <= 0xDFFF:
                         lsurrogate = cord
-                        chunks.append(fr"\u{hsurrogate:04x}\u{lsurrogate:04x}")
+                        chunks.append(rf"\u{hsurrogate:04x}\u{lsurrogate:04x}")
                         handled_raw_surrogates = True
                 if not handled_raw_surrogates:
                     cname = "U+%04X" % cord
@@ -5224,7 +5226,9 @@ class JSON:
                 self._do_decode(state)  # DECODE!
             except JSONException as err:
                 state.push_exception(err)
-            except Exception as err:  # Mainly here to catch maximum recursion depth exceeded
+            except (
+                Exception
+            ) as err:  # Mainly here to catch maximum recursion depth exceeded
                 newerr = JSONDecodeError(
                     "An unexpected failure occured",
                     severity="fatal",
@@ -6582,16 +6586,12 @@ the options --allow, --warn, or --forbid ; for example:
                         szero = "No"
                     else:
                         szero = "Yes"
-                    self.stdout.write(
-                        f"  * Floating-point has signed-zeros: {szero}\n"
-                    )
+                    self.stdout.write(f"  * Floating-point has signed-zeros: {szero}\n")
                     if decimal:
                         has_dec = "Yes"
                     else:
                         has_dec = "No"
-                    self.stdout.write(
-                        f"  * Decimal (bigfloat) support: {has_dec}\n"
-                    )
+                    self.stdout.write(f"  * Decimal (bigfloat) support: {has_dec}\n")
                 return 0
             elif opt == "--copyright":
                 self.stdout.write(

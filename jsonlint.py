@@ -41,9 +41,9 @@ except ImportError:
 
 def main():
     lint = demjson3.jsonlint(program_name=sys.argv[0])
-    rc = lint.main( sys.argv[1:] )
+    rc = lint.main(sys.argv[1:])
     sys.exit(rc)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
